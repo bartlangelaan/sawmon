@@ -1,0 +1,77 @@
+<html>
+<head>
+    <title>Servers and websites monitoring</title>
+</head>
+
+<body>
+
+<div id="app">
+
+</div>
+
+<script id="app-template" type="text/x-handlebars-template">
+    <h1>Servers</h1>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Host</th>
+            <th>#websites</th>
+        </tr>
+        {{#each servers as |server|}}
+            <tr>
+                <td>{{server.config.name}}</td>
+                <td>{{server.config.host}}</td>
+                <td>{{server.websites.length}}</td>
+            </tr>
+        {{/each}}
+    </table>
+
+    <h1>Websites</h1>
+    <table>
+        <tr>
+            <th>Server</th>
+            <th>Webroot</th>
+            <th>Domain</th>
+            <th>Platform</th>
+            <th>Active</th>
+            <th>Updates</th>
+        </tr>
+        {{#each servers as |server|}}
+        {{#each websites as |website|}}
+            <tr>
+                <td>{{server.config.name}}</td>
+                <td>{{website.root}}</td>
+                <td>{{website.domain}}</td>
+                <td>{{website.platform.name}}</td>
+                <td>{{website.active}}</td>
+                <td>{{website.platform.updates.length}}</td>
+            </tr>
+        {{/each}}
+        {{/each}}
+    </table>
+</script>
+
+
+
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.js"></script>
+<script>
+    var appTemplate = Handlebars.compile($("#app-template").html());
+
+    var lastResponse;
+    function refresh(){
+        $.getJSON('api').then(function(servers){
+            if(lastResponse == JSON.stringify(servers)) return;
+            lastResponse = JSON.stringify(servers);
+            console.log(servers);
+            $("#app").html(appTemplate(servers));
+        });
+    }
+
+    setInterval(refresh, 1000);
+    refresh();
+
+</script>
+</body>
+
+</html>
