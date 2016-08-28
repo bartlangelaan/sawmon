@@ -15,13 +15,11 @@
         <tr>
             <th>Name</th>
             <th>Host</th>
-            <th>#websites</th>
         </tr>
         {{#each servers as |server|}}
             <tr>
-                <td>{{server.config.name}}</td>
-                <td>{{server.config.host}}</td>
-                <td>{{server.websites.length}}</td>
+                <td>{{server.name}}</td>
+                <td>{{server.hostname}}</td>
             </tr>
         {{/each}}
     </table>
@@ -34,19 +32,15 @@
             <th>Domain</th>
             <th>Platform</th>
             <th>Active</th>
-            <th>Updates</th>
         </tr>
-        {{#each servers as |server|}}
         {{#each websites as |website|}}
             <tr>
-                <td>{{server.config.name}}</td>
+                <td>{{website.server.name}}</td>
                 <td>{{website.root}}</td>
                 <td>{{website.domain}}</td>
-                <td>{{website.platform.name}}</td>
+                <td>{{website.platform}}</td>
                 <td>{{website.active}}</td>
-                <td>{{website.platform.updates.length}}</td>
             </tr>
-        {{/each}}
         {{/each}}
     </table>
 </script>

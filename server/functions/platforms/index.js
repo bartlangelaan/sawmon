@@ -2,7 +2,8 @@
  * All platforms available for testing
  * @type {Platform[]}
  */
-module.exports = [
-    require('./drupal'),
-    require('../../classes/platform')
-];
+
+module.exports = new Map([
+    ['Drupal', require('./drupal')],
+    ['Custom', require('../../classes/platform')]
+]);

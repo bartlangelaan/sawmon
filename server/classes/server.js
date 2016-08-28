@@ -5,96 +5,70 @@ var Promise = require('bluebird');
 var dns = Promise.promisifyAll(require('dns'));
 var parseApacheConfig = require('../functions/parse-apache-config');
 var Website = require('./website');
+const mongoose = require('mongoose');
+const getConnection = require('../functions/getConnection');
 
-class Server{
-    constructor(config){
-        this.config = config;
-        this._ssh = new node_ssh();
-        this.websites = [];
-    }
+var serverSchema = mongoose.Schema({
+    name: String,
+    hostname: String,
+    username: String,
+    privateKey: String,
+    vhosts: String,
+    ip: String
+});
 
-    toJSON(){
-        return {
-            config: this.config,
-            websites: this.websites.map(website => website.toJSON())
-        }
-    }
+serverSchema.methods.refresh = function(){
+    console.log(this.name, "--> Refreshing IP address..");
+    return this.refreshIp().then(ip => {
+        console.log(this.name, "--> IP adress:", ip);
+        console.log(this.name, "--> Refreshing vhosts..");
+        return this.refreshVhosts();
+    }).then(() => {
+        console.log(this.name, "--> Done.");
+    });
+};
 
-    refresh(){
-        console.log(this.config.name, "--> Refreshing IP address..");
-        this.getIp().then(ip => {
-            console.log(this.config.name, "--> IP adress:", ip);
-            console.log(this.config.name, "--> Connecting with SSH..");
-            return this.connect();
-        }).then(() => {
-            console.log(this.config.name, "--> Connected!");
-            console.log(this.config.name, "--> Getting all websites");
-            return this.getWebsites();
-        }).then(() => {
-            console.log(this.config.name, "--> Done. Disconnecting..");
-            return this.disconnect();
+serverSchema.methods.refreshIp = function(){
+    return dns
+        .lookupAsync(this.hostname)
+        .then(ip => {
+            this.ip = ip;
+            this.save();
+            return ip;
+        }).catch(err => {
+            console.error(err);
         });
-    }
+};
 
-    getIp(){
-        if(this._ip){
-            return Promise.resolve(this._ip);
-        }
+serverSchema.methods.refreshVhosts = function() {
 
-        var self = this;
-        return dns
-            .lookupAsync(this.config.host)
-            .then((ip) => {
-                self.ip = ip;
-                return ip;
-            })
-    }
-
-    connect(){
-        return this._ssh.connect({
-            host: this.config.host,
-            username: this.config.username,
-            privateKey: require('fs').readFileSync(this.config.privateKey).toString()
-        });
-    }
-
-    disconnect(){
-        return this._ssh.end();
-    }
-
-    getWebsites(){
-        /**
-         * Get all .conf files in the vhosts folder
-         */
-        return this._ssh.execCommand('cat *conf', {
-            cwd: this.config.vhosts
+    /**
+     * Get all apache files in the vhosts folder
+     */
+    return getConnection(this)
+        .execCommand('cat *', {
+            cwd: this.vhosts
         }).then(apacheConfig => {
-            /**
-             * Parse all conf files
-             */
-            var virtualHosts = parseApacheConfig(apacheConfig.stdout);
+        /**
+         * Parse all apache files
+         */
+        var virtualHosts = parseApacheConfig(apacheConfig.stdout);
 
-            /**
-             * Clear all sites
-             */
-            this.websites = [];
+        return Promise.map(virtualHosts, virtualHost => {
+            return Promise.map(virtualHost.domains, domain => {
 
-            return Promise.map(virtualHosts, virtualHost => {
-                return Promise.map(virtualHost.domains, domain => {
+                var a = {
+                    domain: domain,
+                    server: this,
+                    root: virtualHost.root
+                };
 
-                    // TODO: Check if website already exists
-                    var website = new Website({
-                        domain: domain,
-                        server: this,
-                        root: virtualHost.root
-                    });
-                    this.websites.push(website);
+                return Website.findOneAndUpdate(a, a, {upsert: true}).exec();
+            }, {concurrency: 1})
+        }, {concurrency: 1});
+    });
+};
 
-                    return website.refresh();
-                }, {concurrency: 1})
-            }, {concurrency: 1});
-        })
-    }
-}
+var Server = mongoose.model('Server', serverSchema);
 
 module.exports = Server;

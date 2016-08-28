@@ -1,6 +1,7 @@
 'use strict';
 
 const Platform = require('../../classes/platform');
+const getConnection = require('../getConnection');
 
 class Drupal extends Platform {
 
@@ -11,9 +12,12 @@ class Drupal extends Platform {
     }
 
     static Test(website){
-        return website.server._ssh.execCommand('drush pm-updatestatus --security-only --format=json', {
-            cwd: website.root
-        }).then(function(result){
+
+        return getConnection(website.server).execCommand('drush pm-updatestatus --security-only --format=json', {
+                cwd: website.root
+            })
+            .then(function(result){
+                console.log(result);
             if(result.code != 0){
                 // Not a Drupal site
                 return false;
