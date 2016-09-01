@@ -69,6 +69,12 @@ serverSchema.methods.refreshVhosts = function() {
     });
 };
 
+
+serverSchema.methods.ping = function(){
+    console.log('PING!', this.name);
+    return Promise.resolve();
+};
+
 var Server = mongoose.model('Server', serverSchema);
 
 module.exports = Server;

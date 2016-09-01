@@ -22,7 +22,7 @@ const dbUrl = 'mongodb://localhost/sawmon';
 console.log(chalk.green('Connecting to database '+chalk.green.underline(dbUrl)+'..'));
 mongoose.connect(dbUrl);
 
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 //app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 

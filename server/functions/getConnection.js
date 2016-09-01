@@ -5,7 +5,6 @@ var ssh = new node_ssh();
 var Promise = require('bluebird');
 const util = require('util');
 const Queue = require('promise-queue');
-//Queue.configure(Promise);
 
 var connections = {};
 

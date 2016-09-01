@@ -2,7 +2,8 @@
 
 var Promise = require('bluebird');
 var dns = Promise.promisifyAll(require('dns'));
-var platforms = require('../functions/platforms');
+var platforms = require('../functions/plugins').platforms;
+var getConnection = require('../functions/getConnection');
 
 const mongoose = require('mongoose');
 
@@ -48,7 +49,7 @@ websiteSchema.methods.refreshPlatform = function(){
             if(prevPlatform) return;
 
             // Then, test the platform
-            return platform[1].Test(this).then(testResult => {
+            return platform[1].test(this, getConnection(this)).then(testResult => {
                 if(testResult) {
                     this.platform = platform[0];
                     this.save();
@@ -56,6 +57,11 @@ websiteSchema.methods.refreshPlatform = function(){
                 }
             });
         }, 0);
+};
+
+websiteSchema.methods.ping = function(){
+    console.log('PING!', this.domain);
+    return Promise.resolve();
 };
 
 var Website = mongoose.model('Website', websiteSchema);
