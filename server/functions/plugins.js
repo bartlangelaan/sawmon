@@ -13,19 +13,13 @@ module.exports.platforms = new Map([
 /**
  * All website plugins
  */
-module.exports.websites = [];
-glob("plugins/**/website-*.js", {}, (error, files) => {
-    files.forEach(file =>
-        module.exports.websites.push(require('../../' + file))
-    );
-});
+module.exports.websites = glob.sync("plugins/**/website-*.js").map(file =>
+    require('../../' + file)
+);
 
 /**
  * All website plugins
  */
-module.exports.servers = [];
-glob("plugins/**/server-*.js", {}, (error, files) => {
-    files.forEach(file =>
-        module.exports.servers.push(require('../../' + file))
-    );
-});
+module.exports.servers = glob.sync("plugins/**/server-*.js").map(file =>
+    require('../../' + file)
+);
