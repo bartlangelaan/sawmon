@@ -12,12 +12,10 @@ var serverSchema = mongoose.Schema(Object.assign({
     hostname: String,
     username: String,
     privateKey: String
-}, ...plugins.servers.map(server => {
-    if(server.schema) return server.schema;
+}, ...plugins.servers.map(plugin => {
+    if(plugin.schema) return plugin.schema;
     return {};
 })));
-
-console.log(serverSchema);
 
 serverSchema.methods.refresh = function(){
     return Promise.map(plugins.servers, plugin => {

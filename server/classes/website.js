@@ -2,7 +2,7 @@
 
 var Promise = require('bluebird');
 var dns = Promise.promisifyAll(require('dns'));
-var plugins = require('../functions/plugins')
+var plugins = require('../functions/plugins');
 var getConnection = require('../functions/getConnection');
 var request = require('request-promise');
 
@@ -18,7 +18,10 @@ var websiteSchema = mongoose.Schema(Object.assign({
     },
     platform: String,
     active: Boolean
-}));
+}, ...plugins.websites.map(plugin => {
+    if(plugin.schema) return plugin.schema;
+    return {};
+})));
 
 websiteSchema.plugin(require('mongoose-autopopulate'));
 
@@ -26,6 +29,11 @@ websiteSchema.methods.refresh = function(){
     return this.checkIfActive().then(() => {
         if(!this.platform)
             return this.refreshPlatform();
+    }).then(() => {
+        return Promise.map(plugins.websites, plugin => {
+            if(typeof plugin.refresh == "function")
+                return plugin.refresh(this, getConnection(this.server));
+        });
     });
 };
 
