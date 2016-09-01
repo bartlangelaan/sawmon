@@ -19,3 +19,13 @@ glob("plugins/**/website-*.js", {}, (error, files) => {
         module.exports.websites.push(require('../../' + file))
     );
 });
+
+/**
+ * All website plugins
+ */
+module.exports.servers = [];
+glob("plugins/**/server-*.js", {}, (error, files) => {
+    files.forEach(file =>
+        module.exports.servers.push(require('../../' + file))
+    );
+});
