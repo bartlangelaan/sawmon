@@ -5,7 +5,7 @@ var refresh = require('./functions/refresh');
 var ping = require('./functions/ping');
 
 const refreshTime = 60*60*1000;
-const pingTime = 60*1000;
+const pingTime = 100*60*1000;
 
 module.exports = app => {
 

@@ -2,12 +2,13 @@
 
 var Promise = require('bluebird');
 var dns = Promise.promisifyAll(require('dns'));
-var platforms = require('../functions/plugins').platforms;
+var plugins = require('../functions/plugins')
 var getConnection = require('../functions/getConnection');
+var request = require('request-promise');
 
 const mongoose = require('mongoose');
 
-var websiteSchema = mongoose.Schema({
+var websiteSchema = mongoose.Schema(Object.assign({
     domain: String,
     root: String,
     server: {
@@ -17,7 +18,7 @@ var websiteSchema = mongoose.Schema({
     },
     platform: String,
     active: Boolean
-});
+}));
 
 websiteSchema.plugin(require('mongoose-autopopulate'));
 
@@ -34,8 +35,7 @@ websiteSchema.methods.checkIfActive = function(){
     }).catch({code: 'ENOTFOUND'}, () => {
         this.active = false;
     }).catch(err => {
-        console.error(err);
-        console.log(err);
+        console.log('[IP CHECK] ERROR', err.code, 'checking', this.domain);
         this.active = false;
     }).then(() =>
         this.save()
@@ -44,7 +44,7 @@ websiteSchema.methods.checkIfActive = function(){
 
 websiteSchema.methods.refreshPlatform = function(){
     return Promise
-        .reduce(platforms, (prevPlatform, platform) => {
+        .reduce(plugins.platforms, (prevPlatform, platform) => {
             // First, check if a platform was already detected
             if(prevPlatform) return;
 
@@ -60,8 +60,22 @@ websiteSchema.methods.refreshPlatform = function(){
 };
 
 websiteSchema.methods.ping = function(){
-    console.log('PING!', this.domain);
-    return Promise.resolve();
+    console.log('[PING]', this.domain, 'START');
+    return request({
+        uri: 'http://' + this.domain,
+        resolveWithFullResponse: true
+    }).catch(err => {
+        return {
+            statusCode: (err.error.code == 'ETIMEDOUT') ? 408 : 520
+        }
+    }).then(res => {
+        return Promise.map(plugins.websites, plugin => {
+            if(typeof plugin.ping == "function")
+                return plugin.ping(this, res);
+        });
+    }).then(() => {
+        console.log('[PING]', this.domain, 'DONE');
+    });
 };
 
 var Website = mongoose.model('Website', websiteSchema);
