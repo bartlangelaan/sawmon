@@ -3,6 +3,10 @@
 const Promise = require('bluebird');
 const dns = Promise.promisifyAll(require('dns'));
 
+module.exports.schema = {
+    ip: String
+};
+
 module.exports.refresh = (server, ssh) => {
     return dns
         .lookupAsync(server.hostname)

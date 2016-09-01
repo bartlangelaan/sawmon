@@ -7,14 +7,17 @@ const mongoose = require('mongoose');
 const getConnection = require('../functions/getConnection');
 var plugins = require('../functions/plugins');
 
-var serverSchema = mongoose.Schema({
+var serverSchema = mongoose.Schema(Object.assign({
     name: String,
     hostname: String,
     username: String,
-    privateKey: String,
-    vhosts: String,
-    ip: String
-});
+    privateKey: String
+}, ...plugins.servers.map(server => {
+    if(server.schema) return server.schema;
+    return {};
+})));
+
+console.log(serverSchema);
 
 serverSchema.methods.refresh = function(){
     return Promise.map(plugins.servers, plugin => {

@@ -3,6 +3,10 @@
 var Website = require('../server/classes/website');
 const Promise = require('bluebird');
 
+module.exports.schema = {
+    vhosts: String
+};
+
 /**
  * Get all apache files in the vhosts folder
  */
