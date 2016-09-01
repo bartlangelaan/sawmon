@@ -27,15 +27,16 @@ module.exports.refresh = (website, ssh) => {
                 try{
                     var updates = JSON.parse(result.stdout);
 
-                    this.updates = [];
+                    website.updates = [];
 
                     for(var module in updates){
-                        this.updates.push({
+                        website.updates.push({
                             name: updates[module].name,
                             existingVersion: updates[module].existing_version,
                             candidateVersion: updates[module].candidate_version
                         })
                     }
+                    return website.save();
                 }
                 catch(err){
                     console.error('Error while parsing update status:', err, '\n\nThe result provided was:', result);
