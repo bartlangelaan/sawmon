@@ -4,18 +4,19 @@ var router = require('express').Router();
 var Server = require('../classes/server');
 var Website = require('../classes/website');
 
-router.get('/', function(req, res){
-    var servers;
+var servers = router.route('/servers');
+var websites = router.route('/websites');
 
-    Server.find().then(s => {
-        servers = s;
-        return Website.find()
-    }).then(websites =>
-        res.json({
-            servers: servers,
-            websites: websites
-        })
-    );
+servers.get(function(req, res){
+    Server.find().then(servers => res.json({
+        servers
+    }));
+});
+
+websites.get(function(req, res){
+   Website.find().then(websites => res.json({
+       websites
+   }));
 });
 
 module.exports = router;

@@ -5,12 +5,13 @@
 
 <body>
 
-<div id="app">
+<h1>Servers</h1>
+<div id="servers"></div>
 
-</div>
+<h1>Websites</h1>
+<div id="websites"></div>
 
-<script id="app-template" type="text/x-handlebars-template">
-    <h1>Servers</h1>
+<script id="servers-template" type="text/x-handlebars-template">
     <table>
         <tr>
             <th>Name</th>
@@ -23,8 +24,9 @@
             </tr>
         {{/each}}
     </table>
+</script>
 
-    <h1>Websites</h1>
+<script id="websites-template" type="text/x-handlebars-template">
     <table>
         <tr>
             <th>Server</th>
@@ -56,15 +58,24 @@
 <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.js"></script>
 <script>
-    var appTemplate = Handlebars.compile($("#app-template").html());
+    var serverTemplate = Handlebars.compile($("#servers-template").html());
+    var websiteTemplate = Handlebars.compile($("#websites-template").html());
 
-    var lastResponse;
+    var lastResponseServer;
+    var lastResponseWebsite;
     function refresh(){
-        $.getJSON('api').then(function(servers){
-            if(lastResponse == JSON.stringify(servers)) return;
-            lastResponse = JSON.stringify(servers);
+        $.getJSON('api/servers').then(function(servers){
+            if(lastResponseServer == JSON.stringify(servers)) return;
+            lastResponseServer = JSON.stringify(servers);
             console.log(servers);
-            $("#app").html(appTemplate(servers));
+            $("#servers").html(serverTemplate(servers));
+        });
+
+        $.getJSON('api/websites').then(function(servers){
+            if(lastResponseWebsite == JSON.stringify(servers)) return;
+            lastResponseWebsite = JSON.stringify(servers);
+            console.log(servers);
+            $("#websites").html(websiteTemplate(servers));
         });
     }
 
