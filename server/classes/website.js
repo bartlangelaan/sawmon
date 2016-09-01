@@ -71,7 +71,8 @@ websiteSchema.methods.ping = function(){
     console.log('[PING]', this.domain, 'START');
     return request({
         uri: 'http://' + this.domain,
-        resolveWithFullResponse: true
+        resolveWithFullResponse: true,
+        time: true
     }).catch(err => {
         return {
             statusCode: (err.error.code == 'ETIMEDOUT') ? 408 : 520
