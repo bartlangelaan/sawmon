@@ -71,8 +71,10 @@ var WebsitesView = Backbone.View.extend({
     collection: websites,
     el: $('#websites'),
     initialize: function(){
-        this.listenTo(this.collection, "sync", this.render);
-        this.render();
+        this.listenToOnce(this.collection, "sync", function(){
+            this.listenTo(this.collection, "add remove change", this.render);
+            this.render();
+        });
     },
     render: function() {
         this.$el.html(this.template({
@@ -91,4 +93,5 @@ function refresh() {
     websites.fetch();
 }
 
-setInterval(refresh, 5000);
+refresh();
+setInterval(refresh, 1000);
