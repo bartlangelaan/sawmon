@@ -1,25 +1,94 @@
+'use strict';
+
 var $ = require('jquery');
+var Backbone = require('backbone');
 
-var serverTemplate = require('./sites-template.handlebars');
-var websiteTemplate = require('./websites-template.handlebars');
+/**
+ * Models
+ */
+var Server = Backbone.Model.extend({
+    url: '/api/servers',
+    idAttribute: '_id',
+    parse: function(data){
+        if(data.server) return data.server;
+        return data;
+    }
+});
 
-var lastResponseServer;
-var lastResponseWebsite;
-function refresh(){
-    $.getJSON('api/servers').then(function(servers){
-        if(lastResponseServer == JSON.stringify(servers)) return;
-        lastResponseServer = JSON.stringify(servers);
-        console.log(servers);
-        $("#servers").html(serverTemplate(servers));
-    });
+var Website = Backbone.Model.extend({
+    url: '/api/websites',
+    idAttribute: '_id',
+    parse: function(data){
+        if(data.websites) return data.website;
+        return data;
+    }
+});
 
-    $.getJSON('api/websites').then(function(servers){
-        if(lastResponseWebsite == JSON.stringify(servers)) return;
-        lastResponseWebsite = JSON.stringify(servers);
-        console.log(servers);
-        $("#websites").html(websiteTemplate(servers));
-    });
+/**
+ * Collections
+ */
+var ServersCollection = Backbone.Collection.extend({
+    url: '/api/servers',
+    model: Server,
+    parse: function(data){
+        if(data.servers) return data.servers;
+        return data;
+    }
+});
+var servers = new ServersCollection();
+
+var WebsiteCollection = Backbone.Collection.extend({
+    url: '/api/websites',
+    model: Website,
+    parse: function(data){
+        if(data.websites) return data.websites;
+        return data;
+    }
+});
+var websites = new WebsiteCollection();
+
+/**
+ * Views
+ */
+var ServersView = Backbone.View.extend({
+    template: require('./servers-template.handlebars'),
+    collection: servers,
+    el: $('#servers'),
+    initialize: function(){
+        this.listenTo(this.collection, "sync", this.render);
+    },
+    render: function() {
+        this.$el.html(this.template({
+            servers: this.collection.toJSON()
+        }));
+        return this;
+    }
+});
+new ServersView();
+
+var WebsitesView = Backbone.View.extend({
+    template: require('./websites-template.handlebars'),
+    collection: websites,
+    el: $('#websites'),
+    initialize: function(){
+        this.listenTo(this.collection, "sync", this.render);
+        this.render();
+    },
+    render: function() {
+        this.$el.html(this.template({
+            websites: this.collection.toJSON()
+        }));
+        return this;
+    }
+});
+new WebsitesView();
+
+/**
+ * App
+ */
+function refresh() {
+    servers.fetch();
+    websites.fetch();
 }
 
-setInterval(refresh, 1000);
-refresh();
+setInterval(refresh, 5000);

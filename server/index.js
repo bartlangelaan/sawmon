@@ -14,6 +14,6 @@ module.exports = app => {
     //setInterval(refresh, refreshTime);
     //refresh();
 
-    setInterval(() => ping(pingTime), pingTime);
-    ping(pingTime);
+    //setInterval(() => ping(pingTime), pingTime);
+    //ping(pingTime);
 };

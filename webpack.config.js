@@ -7,5 +7,6 @@ module.exports = {
         loaders: [
             { test: /\.handlebars$/, loader: "handlebars-loader" }
         ]
-    }
+    },
+    devtool: 'inline-source-map'
 };
