@@ -1,0 +1,12 @@
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Host</th>
+    </tr>
+    {{#each servers as |server|}}
+        <tr>
+            <td>{{server.name}}</td>
+            <td>{{server.hostname}}</td>
+        </tr>
+    {{/each}}
+</table>

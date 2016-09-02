@@ -8,83 +8,10 @@
 <h1>Servers</h1>
 <div id="servers"></div>
 
-<h1>Websites</h1>
+<h1>Websites test</h1>
 <div id="websites"></div>
 
-<script id="servers-template" type="text/x-handlebars-template">
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Host</th>
-        </tr>
-        {{#each servers as |server|}}
-            <tr>
-                <td>{{server.name}}</td>
-                <td>{{server.hostname}}</td>
-            </tr>
-        {{/each}}
-    </table>
-</script>
-
-<script id="websites-template" type="text/x-handlebars-template">
-    <table>
-        <tr>
-            <th>Server</th>
-            <th>Webroot</th>
-            <th>Domain</th>
-            <th>Platform</th>
-            <th>Active</th>
-            <th>Updates</th>
-            <th>Status</th>
-            <th>Response time</th>
-            <th>Pagespeed score</th>
-        </tr>
-        {{#each websites as |website|}}
-            <tr>
-                <td>{{website.server.name}}</td>
-                <td>{{website.root}}</td>
-                <td>{{website.domain}}</td>
-                <td>{{website.platform}}</td>
-                <td>{{website.active}}</td>
-                <td>{{website.updates.length}}</td>
-                <td>{{website.status}}</td>
-                <td>{{#if website.responseTime}}{{website.responseTime}}s{{/if}}</td>
-                <td>{{website.pageSpeedScore}}</td>
-            </tr>
-        {{/each}}
-    </table>
-</script>
-
-
-
-<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.js"></script>
-<script>
-    var serverTemplate = Handlebars.compile($("#servers-template").html());
-    var websiteTemplate = Handlebars.compile($("#websites-template").html());
-
-    var lastResponseServer;
-    var lastResponseWebsite;
-    function refresh(){
-        $.getJSON('api/servers').then(function(servers){
-            if(lastResponseServer == JSON.stringify(servers)) return;
-            lastResponseServer = JSON.stringify(servers);
-            console.log(servers);
-            $("#servers").html(serverTemplate(servers));
-        });
-
-        $.getJSON('api/websites').then(function(servers){
-            if(lastResponseWebsite == JSON.stringify(servers)) return;
-            lastResponseWebsite = JSON.stringify(servers);
-            console.log(servers);
-            $("#websites").html(websiteTemplate(servers));
-        });
-    }
-
-    setInterval(refresh, 1000);
-    refresh();
-
-</script>
+<script src="bundle.js"></script>
 </body>
 
 </html>

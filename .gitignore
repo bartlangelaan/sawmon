@@ -3,3 +3,4 @@ id_dsa
 servers.json
 npm-debug.log
 .idea
+/public/bundle.js

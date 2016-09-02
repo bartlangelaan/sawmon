@@ -1,0 +1,26 @@
+<table>
+    <tr>
+        <th>Server</th>
+        <th>Webroot</th>
+        <th>Domain</th>
+        <th>Platform</th>
+        <th>Active</th>
+        <th>Updates</th>
+        <th>Status</th>
+        <th>Response time</th>
+        <th>Pagespeed score</th>
+    </tr>
+    {{#each websites as |website|}}
+        <tr>
+            <td>{{website.server.name}}</td>
+            <td>{{website.root}}</td>
+            <td>{{website.domain}}</td>
+            <td>{{website.platform}}</td>
+            <td>{{website.active}}</td>
+            <td>{{website.updates.length}}</td>
+            <td>{{website.status}}</td>
+            <td>{{#if website.responseTime}}{{website.responseTime}}s{{/if}}</td>
+            <td>{{website.pageSpeedScore}}</td>
+        </tr>
+    {{/each}}
+</table>
