@@ -7,6 +7,13 @@ module.exports.schema = {
     ip: String
 };
 
+module.exports.display = [
+    {
+        name: "IP Address",
+        value: (website) => website.ip ? `${website.ip}` : null
+    }
+];
+
 module.exports.refresh = (server, ssh) => {
     return dns
         .lookupAsync(server.hostname)

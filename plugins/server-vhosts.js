@@ -7,6 +7,13 @@ module.exports.schema = {
     vhosts: String
 };
 
+module.exports.display = [
+    {
+        name: "Virtual hosts path",
+        value: (website) => website.vhosts ? `${website.vhosts}` : null
+    }
+];
+
 /**
  * Get all apache files in the vhosts folder
  */

@@ -6,6 +6,13 @@ module.exports.schema = {
     pageSpeedScore: Number
 };
 
+module.exports.display = [
+    {
+        name: "Google Pagespeed score",
+        value: (website) => website.pageSpeedScore ? `${website.pageSpeedScore}%` : null
+    }
+];
+
 module.exports.ping = website => {
     if(website.status != 200) return;
 
