@@ -1,6 +1,7 @@
 # SAWMON 
 
 [![Code Climate](https://codeclimate.com/github/bartlangelaan/sawmon/badges/gpa.svg)](https://codeclimate.com/github/bartlangelaan/sawmon)
+[![GitHub issues](https://img.shields.io/github/issues/bartlangelaan/sawmon.svg)](https://waffle.io/bartlangelaan/sawmon)
 
 Servers and websites monitoring, pluggable.
 
