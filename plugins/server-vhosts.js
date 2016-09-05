@@ -9,7 +9,7 @@ module.exports.schema = {
 
 module.exports.display = [
     {
-        name: "Virtual hosts path",
+        name: 'Virtual hosts path',
         value: (website) => website.vhosts ? `${website.vhosts}` : null
     }
 ];
@@ -41,14 +41,14 @@ module.exports.refresh = (server, ssh) => {
                     console.log('[SERVER] [VHOSTS] Website found:', a.domain);
 
                     return Website.findOneAndUpdate(a, a, {upsert: true}).exec();
-                }, {concurrency: 1})
+                }, {concurrency: 1});
             }, {concurrency: 1});
         });
 };
 
 function parseApacheConfig(apacheConfig){
     // Split all virtual hosts
-    var virtualHosts = apacheConfig.split("<VirtualHost");
+    var virtualHosts = apacheConfig.split('<VirtualHost');
 
     // Delete everything before the first virtualhost
     virtualHosts.shift();
@@ -60,13 +60,13 @@ function parseApacheConfig(apacheConfig){
         };
         virtualHost.split('\n').forEach(function(line){
             var split = line.trim().split(' ');
-            if(split[0] == "ServerName" || split[0] == "ServerAlias"){
+            if(split[0] == 'ServerName' || split[0] == 'ServerAlias'){
                 vh.domains.push(split[1]);
             }
-            else if(split[0] == "DocumentRoot"){
+            else if(split[0] == 'DocumentRoot'){
                 vh.root = split[1];
             }
         });
         return vh;
     });
-};
+}

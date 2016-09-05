@@ -2,6 +2,6 @@
 
 var Promise = require('bluebird');
 
-module.exports.test = (website, ssh) => {
+module.exports.test = () => {
     return Promise.resolve(true);
 };

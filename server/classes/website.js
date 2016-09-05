@@ -31,7 +31,7 @@ websiteSchema.methods.refresh = function(){
             return this.refreshPlatform();
     }).then(() => {
         return Promise.map(plugins.websites, plugin => {
-            if(typeof plugin.refresh == "function")
+            if(typeof plugin.refresh == 'function')
                 return plugin.refresh(this, getConnection(this.server));
         });
     });
@@ -76,10 +76,10 @@ websiteSchema.methods.ping = function(){
     }).catch(err => {
         return {
             statusCode: (err.error.code == 'ETIMEDOUT') ? 408 : 520
-        }
+        };
     }).then(res => {
         return Promise.map(plugins.websites, plugin => {
-            if(typeof plugin.ping == "function")
+            if(typeof plugin.ping == 'function')
                 return plugin.ping(this, res);
         });
     }).then(() => {

@@ -39,7 +39,7 @@ function convertToDataTable(data, plugins){
         }, {})
     );
     dt.columns = dt.columns.map(function(column){
-        return {title: column, data: column}
+        return {title: column, data: column};
     });
     return dt;
 }
@@ -51,7 +51,7 @@ servers.get(function(req, res){
 });
 
 websites.get(function(req, res){
-   Website.find().then(websites => res.json(
+    Website.find().then(websites => res.json(
        convertToDataTable(websites, plugins.websites)
    ));
 });

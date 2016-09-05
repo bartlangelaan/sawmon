@@ -9,12 +9,12 @@ module.exports.schema = {
 
 module.exports.display = [
     {
-        name: "IP Address",
+        name: 'IP Address',
         value: (website) => website.ip ? `${website.ip}` : null
     }
 ];
 
-module.exports.refresh = (server, ssh) => {
+module.exports.refresh = (server) => {
     return dns
         .lookupAsync(server.hostname)
         .then(ip => {

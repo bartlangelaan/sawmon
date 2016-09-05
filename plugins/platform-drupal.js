@@ -34,7 +34,7 @@ module.exports.refresh = (website, ssh) => {
                             name: updates[module].name,
                             existingVersion: updates[module].existing_version,
                             candidateVersion: updates[module].candidate_version
-                        })
+                        });
                     }
                     return website.save();
                 }

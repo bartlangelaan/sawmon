@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "concurrently": "^2.2.0",
+    "eslint": "^3.4.0",
     "nodemon": "^1.10.2",
     "webpack": "^1.13.2"
   }

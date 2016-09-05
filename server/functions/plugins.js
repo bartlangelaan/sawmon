@@ -13,13 +13,13 @@ module.exports.platforms = new Map([
 /**
  * All website plugins
  */
-module.exports.websites = glob.sync("plugins/**/website-*.js").map(file =>
+module.exports.websites = glob.sync('plugins/**/website-*.js').map(file =>
     require('../../' + file)
 );
 
 /**
  * All website plugins
  */
-module.exports.servers = glob.sync("plugins/**/server-*.js").map(file =>
+module.exports.servers = glob.sync('plugins/**/server-*.js').map(file =>
     require('../../' + file)
 );

@@ -7,7 +7,7 @@ module.exports.schema = {
 
 module.exports.display = [
     {
-        name: "Response code",
+        name: 'Response code',
         value: (website) => website.status ? `${website.status}` : null
     }
 ];

@@ -2,7 +2,6 @@
 
 var Server = require('../classes/server');
 var Website = require('../classes/website');
-var Promise = require('bluebird');
 
 module.exports = (time) => {
     Server
@@ -10,7 +9,7 @@ module.exports = (time) => {
         .then(servers => {
             servers.forEach(server =>
                 server.ping()
-            )
+            );
         });
 
     Website

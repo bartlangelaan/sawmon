@@ -1,8 +1,5 @@
 var express = require('express');
 var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var http = require('http');
 const chalk = require('chalk');
 const mongoose = require('mongoose');
 const mongo_express = require('mongo-express/lib/middleware');
@@ -37,7 +34,7 @@ mongo_express_config.site.useBasicAuth = false;
 app.use('/mongo', mongo_express(mongo_express_config));
 
 // error handlers
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res) {
     res.status(err.status || 500);
     res.json({
         message: err.message,

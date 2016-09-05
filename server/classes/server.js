@@ -1,6 +1,5 @@
 'use strict';
 
-var node_ssh = require('node-ssh');
 var Promise = require('bluebird');
 
 const mongoose = require('mongoose');
@@ -19,14 +18,14 @@ var serverSchema = mongoose.Schema(Object.assign({
 
 serverSchema.methods.refresh = function(){
     return Promise.map(plugins.servers, plugin => {
-        if(typeof plugin.refresh == "function")
+        if(typeof plugin.refresh == 'function')
             return plugin.refresh(this, getConnection(this));
     }, {concurrency: 1});
 };
 
 serverSchema.methods.ping = function(){
     return Promise.map(plugins.servers, plugin => {
-        if(typeof plugin.ping == "function")
+        if(typeof plugin.ping == 'function')
             return plugin.ping(this, getConnection(this));
     });
 };

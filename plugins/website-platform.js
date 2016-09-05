@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const plugins = require('../server/functions/plugins');
 
 module.exports.schema = {

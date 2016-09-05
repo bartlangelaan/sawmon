@@ -8,7 +8,7 @@ module.exports.schema = {
 
 module.exports.display = [
     {
-        name: "Google Pagespeed score",
+        name: 'Google Pagespeed score',
         value: (website) => website.pageSpeedScore ? `${website.pageSpeedScore}%` : null
     }
 ];
@@ -26,7 +26,7 @@ module.exports.ping = website => {
             website.pageSpeedScore = result.ruleGroups.SPEED.score;
             website.save();
         }
-    }).catch(error => {
+    }).catch(() => {
         // Let it go
     });
 };
