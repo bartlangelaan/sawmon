@@ -1,5 +1,8 @@
-# SAWMON
-Servers and websites monitoring
+# SAWMON 
+
+[![Code Climate](https://codeclimate.com/github/bartlangelaan/sawmon/badges/gpa.svg)](https://codeclimate.com/github/bartlangelaan/sawmon)
+
+Servers and websites monitoring, pluggable.
 
 ## What is this?
 This is a work-in-progress tool that can monitor servers and websites. It's very pluggable, fast and useful.

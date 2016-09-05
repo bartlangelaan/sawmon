@@ -10,4 +10,7 @@ engines:
     channel: "eslint-2"
   fixme:
     enabled: true
+ratings:
+  paths:
+  - "**.js"
 exclude_paths: []
