@@ -2,14 +2,13 @@ module.exports = {
     entry: './src/index',
     context: __dirname + '/public',
     output: {
-        path: __dirname + "/public",
+        path: __dirname + '/public',
         filename: 'bundle.js'
     },
     module: {
         loaders: [
-            { test: /\.handlebars$/, loader: 'handlebars-loader' },
             { test: /\.css$/, loader: 'style-loader!css-loader!postcss-loader' },
-            { test: /\.(svg|png|jpe?g)$/, loader: "url-loader?limit=100000&name=files/[name].[ext]" },
+            { test: /\.(svg|png|jpe?g)$/, loader: 'url-loader?limit=100000&name=files/[name].[ext]' },
             { test: /\.(woff2?|ttf|eot)$/, loader: 'file-loader?name=files/[name].[ext]' }
         ]
     },
