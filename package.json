@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node index.js",
     "build": "webpack",
-    "start:dev": "concurrently \"nodemon index.js\" \"webpack --watch\""
+    "watch": "concurrently \"nodemon index.js\" \"webpack --watch\""
   },
   "dependencies": {
     "apacheconf": "0.0.5",
@@ -38,9 +38,17 @@
     "socket.io": "^1.4.8"
   },
   "devDependencies": {
+    "autoprefixer": "^6.4.1",
     "concurrently": "^2.2.0",
+    "css-loader": "^0.25.0",
     "eslint": "^3.4.0",
+    "expose-loader": "^0.7.1",
+    "file-loader": "^0.9.0",
     "nodemon": "^1.10.2",
+    "postcss-loader": "^0.11.1",
+    "precss": "^1.4.0",
+    "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
     "webpack": "^1.13.2"
   }
 }
