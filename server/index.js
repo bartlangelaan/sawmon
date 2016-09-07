@@ -11,9 +11,9 @@ module.exports = app => {
 
     app.use('/api', routes);
 
-    setInterval(refresh, refreshTime);
-    refresh();
-
-    setInterval(() => ping(pingTime), pingTime);
-    ping(pingTime);
+    // setInterval(refresh, refreshTime);
+    // refresh();
+    //
+    // setInterval(() => ping(pingTime), pingTime);
+    // ping(pingTime);
 };

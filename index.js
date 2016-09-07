@@ -33,11 +33,7 @@ mongo_express_config.site.useBasicAuth = false;
 
 app.use('/mongo', mongo_express(mongo_express_config));
 
-// error handlers
-app.use(function (err, req, res) {
-    res.status(err.status || 500);
-    res.json({
-        message: err.message,
-        error: err
-    });
+app.use(function(err, req, res) {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
 });

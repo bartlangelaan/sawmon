@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>Servers and websites monitoring</title>
@@ -5,11 +6,27 @@
 
 <body>
 
-<h1>Servers</h1>
-<table id="servers"></table>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Sawmon</a>
+        </div>
 
-<h1>Websites test</h1>
-<table id="websites"></table>
+        <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Servers and websites</a></li>
+            <li><a href="#">Plugins</a></li>
+            <li><a href="#">Settings</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Servers</h1>
+    <table id="servers" class="table table-striped table-bordered"></table>
+
+    <h1>Websites test</h1>
+    <table id="websites" class="table table-striped table-bordered"></table>
+</div>
 
 <script src="bundle.js"></script>
 </body>

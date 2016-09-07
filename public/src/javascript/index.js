@@ -2,6 +2,7 @@ var $ = require('jquery');
 require('expose?$!expose?jQuery!jquery');
 require('bootstrap/dist/js/bootstrap.js');
 require('datatables.net');
+require('datatables.net-bs');
 
 
 $.getJSON('api/websites').then(function(data){

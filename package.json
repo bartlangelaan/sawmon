@@ -17,6 +17,7 @@
     "cookie-parser": "~1.4.3",
     "data.io": "^0.3.1",
     "datatables.net": "^1.10.12",
+    "datatables.net-bs": "^1.10.12",
     "datatables.net-dt": "^1.10.12",
     "debug": "~2.2.0",
     "express": "~4.14.0",
