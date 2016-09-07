@@ -19,8 +19,6 @@ const dbUrl = 'mongodb://localhost/sawmon';
 console.log(chalk.green('Connecting to database '+chalk.green.underline(dbUrl)+'..'));
 mongoose.connect(dbUrl);
 
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-//app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 require('./server')(app);
@@ -34,6 +32,11 @@ mongo_express_config.site.useBasicAuth = false;
 app.use('/mongo', mongo_express(mongo_express_config));
 
 app.use(function(err, req, res) {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+    if(err.stack){
+        console.error(err.stack);
+        res.sendStatus(500);
+    }
+    else{
+        req.sendStatus(404);
+    }
 });
