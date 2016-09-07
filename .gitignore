@@ -4,3 +4,4 @@ servers.json
 npm-debug.log
 .idea
 /public/bundle.js
+/public/files/

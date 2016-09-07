@@ -23,8 +23,8 @@ $.getJSON('api/servers').then(function(data){
  * App
  */
 function refresh() {
-    $("#websites").DataTable().ajax.reload();
-    $("#servers").DataTable().ajax.reload();
+    $("#websites").DataTable().ajax.reload(null, false);
+    $("#servers").DataTable().ajax.reload(null, false);
 }
 
 setInterval(refresh, 1000);
