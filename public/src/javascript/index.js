@@ -5,20 +5,23 @@ require('expose?$!expose?jQuery!jquery');
 require('bootstrap/dist/js/bootstrap.js');
 require('datatables.net');
 require('datatables.net-bs');
+require('datatables.net-colreorder')
 
 
 $.getJSON('api/websites').then(function(data){
     $('#websites').DataTable(Object.assign(data, {
         ajax: {
             url: 'api/websites'
-        }
+        },
+        colReorder: true
     }));
 });
 $.getJSON('api/servers').then(function(data){
     $('#servers').DataTable(Object.assign(data, {
         ajax: {
             url: 'api/servers'
-        }
+        },
+        colReorder: true
     }));
 });
 
