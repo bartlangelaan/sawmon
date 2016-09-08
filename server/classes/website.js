@@ -27,8 +27,7 @@ websiteSchema.plugin(require('mongoose-autopopulate'));
 
 websiteSchema.methods.refresh = function(){
     return this.checkIfActive().then(() => {
-        if(!this.platform)
-            return this.refreshPlatform();
+        return this.refreshPlatform();
     }).then(() => {
         return Promise.map(plugins.websites, plugin => {
             if(typeof plugin.refresh == 'function')
@@ -57,7 +56,7 @@ websiteSchema.methods.refreshPlatform = function(){
             if(prevPlatform) return;
 
             // Then, test the platform
-            return platform[1].test(this, getConnection(this)).then(testResult => {
+            return platform[1].test(this, getConnection(this.server)).then(testResult => {
                 if(testResult) {
                     this.platform = platform[0];
                     this.save();
