@@ -3,6 +3,7 @@ var path = require('path');
 const chalk = require('chalk');
 const mongoose = require('mongoose');
 const mongo_express = require('mongo-express/lib/middleware');
+const bodyParser = require('body-parser');
 
 /**
  * Create the server
@@ -20,6 +21,9 @@ console.log(chalk.green('Connecting to database '+chalk.green.underline(dbUrl)+'
 mongoose.connect(dbUrl);
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
 
 require('./server')(app);
 

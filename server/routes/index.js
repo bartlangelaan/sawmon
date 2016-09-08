@@ -49,6 +49,15 @@ servers.get(function(req, res){
         convertToDataTable(servers, plugins.servers)
     ));
 });
+servers.post(function(req, res){
+    new Server(req.body).save().then(() => {
+        res.sendStatus(204);
+    }).catch(err => {
+        res.status(400).json({
+            error: err
+        });
+    });
+});
 
 websites.get(function(req, res){
     Website.find().then(websites => res.json(
