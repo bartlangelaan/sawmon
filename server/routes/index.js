@@ -78,6 +78,14 @@ function createRoutes(singular, plural){
             res.sendStatus(204);
         });
     });
+
+    router.get('/' + plural + '/fields', (req, res) => {
+        res.json([].concat.apply([],
+            plugins[plural].map(plugin =>
+                plugin.fields ? plugin.fields : []
+            )
+        ));
+    });
 }
 
 createRoutes('server', 'servers');
