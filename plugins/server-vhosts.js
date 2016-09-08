@@ -14,6 +14,15 @@ module.exports.display = [
     }
 ];
 
+module.exports.fields = [
+    {
+        name: 'Virtual hosts path',
+        key: 'vhosts',
+        type: 'text',
+        placeholder: '/etc/apache2/sites-enabled'
+    }
+];
+
 /**
  * Get all apache files in the vhosts folder
  */

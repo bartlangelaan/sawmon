@@ -1,3 +1,6 @@
+/**
+ * An array of objects, defining the fields displayed in the table
+ */
 module.exports.display = [
     {
         name: 'Domain',
