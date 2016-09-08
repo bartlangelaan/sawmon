@@ -1,11 +1,6 @@
 'use strict';
 
 var router = require('express').Router();
-var Server = require('../classes/server');
-var Website = require('../classes/website');
-
-var servers = router.route('/servers');
-var websites = router.route('/websites');
 
 var plugins = require('../functions/plugins');
 
@@ -44,25 +39,48 @@ function convertToDataTable(data, plugins){
     return dt;
 }
 
-servers.get(function(req, res){
-    Server.find().then(servers => res.json(
-        convertToDataTable(servers, plugins.servers)
-    ));
-});
-servers.post(function(req, res){
-    new Server(req.body).save().then(() => {
-        res.sendStatus(204);
-    }).catch(err => {
-        res.status(400).json({
-            error: err
+function createRoutes(singular, plural){
+
+    var DBModel = require('../classes/' + singular);
+
+    router.get('/' + plural, (req, res) => {
+        DBModel.find().then(models => res.json(
+            convertToDataTable(models, plugins[plural])
+        ));
+    });
+
+    router.post('/' + plural, (req, res) => {
+        new DBModel(req.body).save().then(() => {
+            res.sendStatus(204);
+        }).catch(err => {
+            res.status(400).json({
+                error: err
+            });
         });
     });
-});
 
-websites.get(function(req, res){
-    Website.find().then(websites => res.json(
-       convertToDataTable(websites, plugins.websites)
-   ));
-});
+    router.get('/' + plural, (req, res) => {
+        DBModel.findOne({_id: req.params.id}).then(model => res.json(
+            convertToDataTable([model], plugins[plural])
+        ));
+    });
+
+    router.get('/' + plural + '/:id/ping', (req, res) => {
+        DBModel.findOne({_id: req.params.id}).then(model => {
+            model.ping();
+            res.sendStatus(204);
+        });
+    });
+
+    router.get('/' + plural + '/:id/refresh', (req, res) => {
+        DBModel.findOne({_id: req.params.id}).then(model => {
+            model.refresh();
+            res.sendStatus(204);
+        });
+    });
+}
+
+createRoutes('server', 'servers');
+createRoutes('website', 'websites');
 
 module.exports = router;

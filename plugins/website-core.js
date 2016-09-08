@@ -22,7 +22,7 @@ module.exports.display = [
     {
         name: 'Actions',
         value: (website) =>
-            `<a href="api/website/${website._id}/refresh" class='btn btn-default btn-sm' target="iframe" onclick="this.classList.add('disabled')">Refresh</a>` +
-            `<a href="api/website/${website._id}/ping" class='btn btn-default btn-sm' target="iframe" onclick="this.classList.add('disabled')">Ping</a>`
+            `<a href="api/websites/${website._id}/refresh" class='btn btn-default btn-sm' target="iframe" onclick="this.classList.add('disabled')">Refresh</a>` +
+            `<a href="api/websites/${website._id}/ping" class='btn btn-default btn-sm' target="iframe" onclick="this.classList.add('disabled')">Ping</a>`
     }
 ];
