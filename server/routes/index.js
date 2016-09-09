@@ -59,10 +59,28 @@ function createRoutes(singular, plural){
         });
     });
 
-    router.get('/' + plural, (req, res) => {
-        DBModel.findOne({_id: req.params.id}).then(model => res.json(
-            convertToDataTable([model], plugins[plural])
+    router.get('/' + plural + '/fields', (req, res) => {
+        res.json([].concat.apply([],
+            plugins[plural].map(plugin =>
+                plugin.fields ? plugin.fields : []
+            )
         ));
+    });
+
+    router.get('/' + plural + '/:id', (req, res) => {
+        DBModel.findOne({_id: req.params.id}).then(model => res.json(
+            req.query.parsed ? convertToDataTable([model], plugins[plural]) : model
+        )).catch(() => res.sendStatus(404));
+    });
+
+    router.post('/' + plural + '/:id', (req, res) => {
+        DBModel.update({_id: req.params.id}, req.body).then(() => {
+            res.sendStatus(204);
+        }).catch(err => {
+            res.status(400).json({
+                error: err
+            });
+        });
     });
 
     router.get('/' + plural + '/:id/ping', (req, res) => {
@@ -77,14 +95,6 @@ function createRoutes(singular, plural){
             model.refresh();
             res.sendStatus(204);
         });
-    });
-
-    router.get('/' + plural + '/fields', (req, res) => {
-        res.json([].concat.apply([],
-            plugins[plural].map(plugin =>
-                plugin.fields ? plugin.fields : []
-            )
-        ));
     });
 }
 

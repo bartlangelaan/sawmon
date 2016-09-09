@@ -28,3 +28,16 @@ module.exports.fields = [
         placeholder: './id_dsa'
     }
 ];
+
+/**
+ * An array of objects, defining the fields displayed in the table
+ */
+module.exports.display = [
+    {
+        name: 'Actions',
+        value: (server) =>
+        `<a href="api/servers/${server._id}/refresh" class='btn btn-default btn-sm' target="iframe" onclick="this.classList.add('disabled')">Refresh</a>` +
+        `<a href="api/servers/${server._id}/ping" class='btn btn-default btn-sm' target="iframe" onclick="this.classList.add('disabled')">Ping</a>` +
+        `<a href='#' class='btn btn-default btn-sm edit-item' data-item-type='server' data-item-id="${server._id}">Edit</a>`
+    }
+];
