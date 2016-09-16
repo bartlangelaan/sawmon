@@ -6,6 +6,10 @@ require('bootstrap/dist/js/bootstrap.js');
 require('datatables.net');
 require('datatables.net-bs');
 require('datatables.net-colreorder');
+require('datatables.net-buttons');
+require('datatables.net-buttons-bs');
+require('datatables.net-buttons/js/buttons.colVis.js');
+
 
 
 $.getJSON('api/websites').then(function(data){
@@ -13,7 +17,11 @@ $.getJSON('api/websites').then(function(data){
         ajax: {
             url: 'api/websites'
         },
-        colReorder: true
+        buttons: ['colvis'],
+        colReorder: true,
+        dom: 'l<"row"<"col-sm-6"B><"col-sm-6"f>>' +
+        '<"row"<"col-sm-12"tr>>' +
+        '<"row"<"col-sm-5"i><"col-sm-7"p>>'
     }));
 });
 $.getJSON('api/servers').then(function(data){
@@ -21,7 +29,11 @@ $.getJSON('api/servers').then(function(data){
         ajax: {
             url: 'api/servers'
         },
-        colReorder: true
+        buttons: ['colvis'],
+        colReorder: true,
+        dom: 'l<"row"<"col-sm-6"B><"col-sm-6"f>>' +
+        '<"row"<"col-sm-12"tr>>' +
+        '<"row"<"col-sm-5"i><"col-sm-7"p>>'
     }));
 });
 
