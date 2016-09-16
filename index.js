@@ -2,10 +2,11 @@
 
 var express = require('express');
 var path = require('path');
-const chalk = require('chalk');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const PluginManager = require('./server/classes/plugin-manager');
+
+mongoose.Promise = require('bluebird');
 
 /**
  * Connect to database
