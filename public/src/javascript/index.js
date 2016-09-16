@@ -43,6 +43,13 @@ $.getJSON('api/servers').then(function(data){
 function refresh() {
     $('#websites').DataTable().ajax.reload(null, false);
     $('#servers').DataTable().ajax.reload(null, false);
+    $.ajax('api/plugins').then(plugins => {
+        $('#plugins-table').html(plugins.map(plugin =>
+            `<tr><td>${plugin.name}</td>` +
+            `<td>${plugin.version}</td>` +
+            `<td><a href="api/plugins/${plugin._id}/delete" class='btn btn-default btn-sm' target="iframe" onclick="this.classList.add('disabled')">Delete</a></td></tr>`
+        ));
+    });
 }
 
 setInterval(refresh, 1000);
