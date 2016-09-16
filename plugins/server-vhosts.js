@@ -70,12 +70,17 @@ function parseApacheConfig(apacheConfig){
         virtualHost.split('\n').forEach(function(line){
             var split = line.trim().split(' ');
             if(split[0] == 'ServerName' || split[0] == 'ServerAlias'){
-                vh.domains.push(split[1]);
+                split.shift();
+                Array.prototype.push.apply(vh.domains, split);
             }
             else if(split[0] == 'DocumentRoot'){
                 vh.root = split[1];
             }
         });
+
+        if(!vh.root) {
+            console.log('No root found!', virtualHost);
+        }
         return vh;
     });
 }

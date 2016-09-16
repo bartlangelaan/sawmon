@@ -5,7 +5,7 @@ require('expose?$!expose?jQuery!jquery');
 require('bootstrap/dist/js/bootstrap.js');
 require('datatables.net');
 require('datatables.net-bs');
-require('datatables.net-colreorder')
+require('datatables.net-colreorder');
 
 
 $.getJSON('api/websites').then(function(data){

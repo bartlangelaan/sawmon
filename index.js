@@ -1,46 +1,51 @@
+'use strict';
+
 var express = require('express');
 var path = require('path');
 const chalk = require('chalk');
 const mongoose = require('mongoose');
-const mongo_express = require('mongo-express/lib/middleware');
 const bodyParser = require('body-parser');
-
-/**
- * Create the server
- */
-var app = express();
-var port = process.env.PORT || 3000;
-console.log(chalk.green('Starting application on port '+chalk.green.underline(port)+'..'));
-app.listen(port);
+const PluginManager = require('./server/classes/plugin-manager');
 
 /**
  * Connect to database
  */
 const dbUrl = 'mongodb://localhost/sawmon';
-console.log(chalk.green('Connecting to database '+chalk.green.underline(dbUrl)+'..'));
-mongoose.connect(dbUrl);
+console.log(`Connecting to database ${dbUrl}..`);
 
-app.use(express.static(path.join(__dirname, 'public')));
+mongoose.connect(dbUrl).then(() => {
+    console.log('Connected to database.');
+    console.log('Installing all plugins..');
+    return PluginManager.initialize();
+}).then(() => {
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+    console.log('All plugins installed.');
 
-require('./server')(app);
+    /**
+     * Create the server
+     */
+    var app = express();
+    var port = process.env.PORT || 3000;
+    console.log('Starting application on port ' + port);
+    app.listen(port);
 
-var mongo_express_config = require('mongo-express/config.default.js');
-mongo_express_config.mongodb.auth = [{
-    database: 'sawmon'
-}];
-mongo_express_config.site.useBasicAuth = false;
+    app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/mongo', mongo_express(mongo_express_config));
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded());
 
-app.use(function(err, req, res) {
-    if(err.stack){
-        console.error(err.stack);
-        res.sendStatus(500);
-    }
-    else{
-        req.sendStatus(404);
-    }
+    require('./server')(app);
+
+    app.use(function(err, req, res) {
+        if(err.stack){
+            console.error(err.stack);
+            res.sendStatus(500);
+        }
+        else{
+            req.sendStatus(404);
+        }
+    });
+
+}).catch(e => {
+    console.error(e);
 });

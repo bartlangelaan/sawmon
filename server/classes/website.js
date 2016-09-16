@@ -2,7 +2,7 @@
 
 var Promise = require('bluebird');
 var dns = Promise.promisifyAll(require('dns'));
-var plugins = require('../functions/plugins');
+var PluginManager = require('../classes/plugin-manager');
 var getConnection = require('../functions/getConnection');
 var request = require('request-promise');
 
@@ -18,7 +18,7 @@ var websiteSchema = mongoose.Schema(Object.assign({
     },
     platform: String,
     active: Boolean
-}, ...plugins.websites.map(plugin => {
+}, ...PluginManager.getPlugins('websites').map(plugin => {
     if(plugin.schema) return plugin.schema;
     return {};
 })));
@@ -27,17 +27,17 @@ websiteSchema.plugin(require('mongoose-autopopulate'));
 
 websiteSchema.methods.refresh = function(){
     return this.checkIfActive().then(() => {
-        return this.refreshPlatform();
+        //return this.refreshPlatform();
     }).then(() => {
-        return Promise.map(plugins.websites, plugin => {
-            if(typeof plugin.refresh == 'function')
-                return plugin.refresh(this, getConnection(this.server));
-        });
+        // return Promise.map(plugins.websites, plugin => {
+        //     if(typeof plugin.refresh == 'function')
+        //         return plugin.refresh(this, getConnection(this.server));
+        // });
     });
 };
 
 websiteSchema.methods.checkIfActive = function(){
-    return dns.lookupAsync(this.domain).then(ip => {
+    return dns.lookupAsync(this.domain.replace('*', 'star')).then(ip => {
         this.active = (ip == this.server.ip);
     }).catch({code: 'ENOTFOUND'}, () => {
         this.active = false;
@@ -51,7 +51,7 @@ websiteSchema.methods.checkIfActive = function(){
 
 websiteSchema.methods.refreshPlatform = function(){
     return Promise
-        .reduce(plugins.platforms, (prevPlatform, platform) => {
+        .reduce(PluginManager.getPlugins('platforms'), (prevPlatform, platform) => {
             // First, check if a platform was already detected
             if(prevPlatform) return;
 
@@ -77,7 +77,7 @@ websiteSchema.methods.ping = function(){
             statusCode: (err.error.code == 'ETIMEDOUT') ? 408 : 520
         };
     }).then(res => {
-        return Promise.map(plugins.websites, plugin => {
+        return Promise.map(PluginManager.getPlugins('websites'), plugin => {
             if(typeof plugin.ping == 'function')
                 return plugin.ping(this, res);
         });

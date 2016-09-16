@@ -2,7 +2,7 @@
 
 var router = require('express').Router();
 
-var plugins = require('../functions/plugins');
+var PluginManager = require('../classes/plugin-manager');
 
 function convertToDataTable(data, plugins){
     var dt = {
@@ -45,7 +45,7 @@ function createRoutes(singular, plural){
 
     router.get('/' + plural, (req, res) => {
         DBModel.find().then(models => res.json(
-            convertToDataTable(models, plugins[plural])
+            convertToDataTable(models, PluginManager.getPlugins(plural))
         ));
     });
 
@@ -61,7 +61,7 @@ function createRoutes(singular, plural){
 
     router.get('/' + plural + '/fields', (req, res) => {
         res.json([].concat.apply([],
-            plugins[plural].map(plugin =>
+            PluginManager.getPlugins(plural).map(plugin =>
                 plugin.fields ? plugin.fields : []
             )
         ));
@@ -69,7 +69,7 @@ function createRoutes(singular, plural){
 
     router.get('/' + plural + '/:id', (req, res) => {
         DBModel.findOne({_id: req.params.id}).then(model => res.json(
-            req.query.parsed ? convertToDataTable([model], plugins[plural]) : model
+            req.query.parsed ? convertToDataTable([model], PluginManager.getPlugins(plural)) : model
         )).catch(() => res.sendStatus(404));
     });
 

@@ -23,6 +23,7 @@
     "mongoose": "^4.5.10",
     "mongoose-autopopulate": "^0.4.0",
     "node-ssh": "^3.0.1",
+    "npmi": "^2.0.1",
     "promise-queue": "^2.2.3",
     "request-promise": "^4.1.1"
   },
