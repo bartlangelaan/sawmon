@@ -36,6 +36,18 @@ module.exports.servers.fields = [
  */
 module.exports.servers.display = [
     {
+        name: 'Name',
+        value: server => server.name
+    },
+    {
+        name: 'Hostname',
+        value: server => server.hostname
+    },
+    {
+        name: 'Username',
+        value: server => server.username
+    },
+    {
         name: 'Actions',
         value: (server) =>
         `<a href="api/servers/${server._id}/refresh" class='btn btn-default btn-sm' target="iframe" onclick="this.classList.add('disabled')">Refresh</a>` +
