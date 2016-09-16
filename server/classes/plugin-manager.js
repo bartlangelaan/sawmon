@@ -4,7 +4,10 @@ const Promise = require('bluebird');
 const npmi = Promise.promisify(require('npmi'));
 
 let pluginSchema = mongoose.Schema({
-    name: String,
+    name: {
+        type: String,
+        unique: true
+    },
     version: String
 });
 
