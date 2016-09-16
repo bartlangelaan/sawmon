@@ -101,4 +101,20 @@ function createRoutes(singular, plural){
 createRoutes('server', 'servers');
 createRoutes('website', 'websites');
 
+router.get('/plugins', (req, res) => {
+    PluginManager.getInstalledPlugins().then(plugins => {
+        res.json(plugins);
+    });
+});
+
+router.post('/plugins', (req, res) => {
+    PluginManager.addPlugin(req.body).then(() => {
+        res.sendStatus(204);
+    }).catch(err => {
+        res.status(400).json({
+            error: err
+        });
+    });
+});
+
 module.exports = router;

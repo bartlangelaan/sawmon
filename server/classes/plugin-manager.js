@@ -1,27 +1,54 @@
 const mongoose = require('mongoose');
+const Promise = require('bluebird');
 
-const npmi = require('bluebird').promisify(require('npmi'));
+const npmi = Promise.promisify(require('npmi'));
 
 let pluginSchema = mongoose.Schema({
-    package: String,
+    name: String,
     version: String
 });
 
 var Plugin = mongoose.model('Plugin', pluginSchema);
 
 
+/**
+ * @name PluginCategory
+ * @type {Object}
+ * @property {Function} ping
+ */
+
+/**
+ * @name Plugin
+ * @type {Object}
+ * @property {PluginCategory} websites
+ * @property {PluginCategory} servers
+ */
+
 class PluginManager{
     /**
-     * This should only be called once
+     * This should only be called once.
+     * @returns {Promise}
      */
     initialize(){
+
+        /**
+         * Holds the internal array of plugins.
+         * @type {Array.<Plugin>}
+         * @private
+         */
+        this._plugins = [];
+
+        this._plugins.push(require('../../plugins/sawmon-server-core'));
+        this._plugins.push(require('../../plugins/sawmon-website-core'));
+
+        /**
+         * Find all saved plugins
+         */
         return Plugin.find().then(plugins => {
-            this._plugins = plugins.map(plugin => plugin.toJSON());
-            if(this._plugins.length <= 1){
-                return this.addPlugin({name: './plugins/sawmon-website-core', localInstall: true}).then(() => {
-                    return this.addPlugin({name: './plugins/sawmon-server-core', localInstall: true});
-                });
-            }
+            /**
+             * Install all saved plugins
+             */
+            return Promise.map(plugins, plugin => this.addPlugin(plugin));
         });
     }
 
@@ -31,8 +58,27 @@ class PluginManager{
     addPlugin(plugin){
         console.log('Installing plugin ', plugin);
         return npmi(plugin).then(() => {
-            var module = require((plugin.localInstall ? '../../' : '') + plugin.name);
-            this._plugins.push(module);
+            /**
+             * Add plugin to internal array
+             */
+            this._plugins.push(require(plugin.name));
+
+            /**
+             * Check if already in database
+             */
+            if(!plugin._id){
+                /**
+                 * Get package.json and save in database
+                 */
+                var modulePackage = require(plugin.name + '/package.json');
+                var dbPlugin = new Plugin({
+                    name: modulePackage.name,
+                    version: modulePackage.version
+                });
+                return dbPlugin.save().then(() => {
+                    console.log('Installed', plugin);
+                });
+            }
         }).catch(err => {
             console.error('Failed installing plugin', err);
         });
@@ -40,12 +86,21 @@ class PluginManager{
 
     /**
      * Gets an array of plugins, given a category
-     * @param category
+     * @param {string} category
+     * @returns PluginCategory
      */
     getPlugins(category){
         return this._plugins.filter(plugin => {
             return typeof plugin[category] == 'object';
         }).map(plugin => plugin[category]);
+    }
+
+    /**
+     * Get all installed plugins, as defined in the database
+     * @returns {Promise.<Array.<Object>>}
+     */
+    getInstalledPlugins(){
+        return Plugin.find();
     }
 }
 
