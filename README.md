@@ -2,6 +2,8 @@
 
 [![Code Climate](https://codeclimate.com/github/bartlangelaan/sawmon/badges/gpa.svg)](https://codeclimate.com/github/bartlangelaan/sawmon)
 [![GitHub issues](https://img.shields.io/github/issues/bartlangelaan/sawmon.svg)](https://waffle.io/bartlangelaan/sawmon)
+[![dependencies Status](https://david-dm.org/bartlangelaan/sawmon/status.svg)](https://david-dm.org/bartlangelaan/sawmon)
+[![devDependencies Status](https://david-dm.org/bartlangelaan/sawmon/dev-status.svg)](https://david-dm.org/bartlangelaan/sawmon?type=dev)
 
 Servers and websites monitoring, pluggable.
 
