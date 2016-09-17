@@ -117,4 +117,15 @@ router.post('/plugins', (req, res) => {
     });
 });
 
+router.get('/plugins/fields', (req, res) => {
+    res.json([
+        {
+            name: 'Package name',
+            key: 'name',
+            type: 'text',
+            placeholder: 'sawmon-ip'
+        }
+    ]);
+});
+
 module.exports = router;
