@@ -79,7 +79,7 @@ $('.container').on('click', '.edit-item', function(){
                 var random = Array(5+1).join((Math.random().toString(36)+'00000000000000000').slice(2, 18)).slice(0, 5);
 
                 var inputs = {
-                    'textarea': () => `<textarea rows="3" class="form-control" name="${field.key}"></textarea>`,
+                    'textarea': () => `<textarea rows="3" class="form-control" name="${field.key}" placeholder="${field.placeholder}" ></textarea>`,
                     'default': () => `<input type="${field.type}" class="form-control" name="${field.key}" id="${field.key + random}" placeholder="${field.placeholder}" required>`
                 };
                 return `<div class="form-group">
