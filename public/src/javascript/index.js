@@ -77,10 +77,15 @@ $('.container').on('click', '.edit-item', function(){
         $('#editor-fields').html(
             fields.map(function(field){
                 var random = Array(5+1).join((Math.random().toString(36)+'00000000000000000').slice(2, 18)).slice(0, 5);
+
+                var inputs = {
+                    'textarea': () => `<textarea rows="3" class="form-control" name="${field.key}"></textarea>`,
+                    'default': () => `<input type="${field.type}" class="form-control" name="${field.key}" id="${field.key + random}" placeholder="${field.placeholder}" required>`
+                };
                 return `<div class="form-group">
                             <label for="${field.key + random}" class="col-sm-3 control-label">${field.name}</label>
                             <div class="col-sm-9">
-                                <input type="${field.type}" class="form-control" name="${field.key}" id="${field.key + random}" placeholder="${field.placeholder}" required>
+                                ${(inputs[field.type] || inputs['default'])()}
                             </div>
                         </div>`;
             })
