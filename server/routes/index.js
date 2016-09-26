@@ -117,6 +117,16 @@ router.post('/plugins', (req, res) => {
     });
 });
 
+router.get('/plugins/:id/delete', (req, res) => {
+    PluginManager.removePlugin(req.params.id).then(() => {
+        res.sendStatus(204);
+    }).catch(err => {
+        res.status(400).json({
+            error: err
+        });
+    });
+});
+
 router.get('/plugins/fields', (req, res) => {
     res.json([
         {

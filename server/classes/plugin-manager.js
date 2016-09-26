@@ -59,12 +59,17 @@ class PluginManager{
      * Installs a plugin, and adds it to the database on success
      */
     addPlugin(plugin){
+        if(plugin.name.charAt(0) == '.'){
+            plugin.localInstall = true;
+        }
         console.log('Installing plugin ', plugin);
         return npmi(plugin).then(() => {
+            const nameToRequire = (plugin.localInstall ? '../../' : '') + plugin.name;
+
             /**
              * Add plugin to internal array
              */
-            this._plugins.push(require(plugin.name));
+            this._plugins.push(require(nameToRequire));
 
             /**
              * Check if already in database
@@ -73,9 +78,9 @@ class PluginManager{
                 /**
                  * Get package.json and save in database
                  */
-                var modulePackage = require(plugin.name + '/package.json');
+                var modulePackage = require(nameToRequire + '/package.json');
                 var dbPlugin = new Plugin({
-                    name: modulePackage.name,
+                    name: plugin.name,
                     version: modulePackage.version
                 });
                 return dbPlugin.save().then(() => {
@@ -84,6 +89,23 @@ class PluginManager{
             }
         }).catch(err => {
             console.error('Failed installing plugin', err);
+        });
+    }
+
+    removePlugin(pluginId){
+        return Plugin.findOne({_id: pluginId}).exec().then(plugin => {
+            // Remove from database
+            plugin.remove();
+
+            // Require module
+            const nameToRequire = (plugin.localInstall ? '../../' : '') + plugin.name;
+            const PluginInstance = require(nameToRequire);
+
+            // Delete from _plugins array
+            const index = this._plugins.indexOf(PluginInstance);
+            if(index > -1){
+                this._plugins.splice(index, 1);
+            }
         });
     }
 
