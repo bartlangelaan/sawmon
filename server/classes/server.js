@@ -10,7 +10,10 @@ var serverSchema = mongoose.Schema(Object.assign({
     name: String,
     hostname: String,
     username: String,
-    privateKey: String
+    privateKey: {
+        type: String,
+        select: false
+    }
 }, ...PluginManager.getPlugins('servers').map(plugin => {
     if(plugin.schema) return plugin.schema;
     return {};

@@ -26,8 +26,8 @@ module.exports.servers.fields = [
     {
         name: 'Private key',
         key: 'privateKey',
-        type: 'text',
-        placeholder: './id_dsa'
+        type: 'textarea',
+        placeholder: '-----BEGIN RSA PRIVATE KEY-----\nMIICWgIBAAKBgE8/Mu5DFlbyNuUoTktDTd0gqAXvvJJ0RrTteAJYeC8hMJsoegT5...'
     }
 ];
 

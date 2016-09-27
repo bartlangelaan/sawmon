@@ -7,10 +7,15 @@ var connections = {};
 
 function connect(queue, server, connection){
     return queue.add(() => {
-        return connection.connect({
-            host: server.hostname,
-            username: server.username,
-            privateKey: require('fs').readFileSync(server.privateKey).toString()
+        console.log('Connecting..');
+        // Get the private key
+        return require('../classes/server').findOne({_id: server._id}).select('+privateKey').exec().then(server => {
+            // Connect
+            return connection.connect({
+                host: server.hostname,
+                username: server.username,
+                privateKey: server.privateKey
+            }).then(() => console.log('Connected!'));
         });
     });
 }
@@ -27,21 +32,24 @@ module.exports = server => {
     connections[serverId] = {
         execCommand: (...args) => {
             return queue.add(() => {
-                return Promise.resolve(connection.execCommand(...args))
-                    .catch(err => {
-                        /**
-                         * When error, check if connected to server
-                         */
-                        if(err.message != 'Not connected to server') throw err;
+                console.log('Executing', ...args);
+                return Promise.resolve(connection.execCommand(...args));
+            }).catch(err => {
+                /**
+                 * On error, check if connected to server
+                 */
+                if(err.message != 'Not connected') throw err;
 
-                        /**
-                         * Connect, then try again
-                         */
-                        return connect(queue, server, connection).then(() => {
-                            return connection.execCommand(...args);
-                        });
-                    });
-            });
+                console.log('Not connected anymore, trying to reconnect..');
+
+                /**
+                 * Connect, then try again
+                 */
+                return connect(queue, server, connection).then(() => {
+                    return connection.execCommand(...args);
+                });
+            }).then(() => console.log('Command executed'));
+
         }
     };
 
