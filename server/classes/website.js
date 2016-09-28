@@ -5,6 +5,7 @@ var dns = Promise.promisifyAll(require('dns'));
 var PluginManager = require('../classes/plugin-manager');
 var getConnection = require('../functions/getConnection');
 var request = require('request-promise');
+const ActionStatus = require('./action-status');
 
 const mongoose = require('mongoose');
 
@@ -17,7 +18,9 @@ var websiteSchema = mongoose.Schema(Object.assign({
         autopopulate: true
     },
     platform: String,
-    active: Boolean
+    active: Boolean,
+    pingStatus: ActionStatus,
+    refreshStatus: ActionStatus
 }, ...PluginManager.getPlugins('websites').map(plugin => {
     if(plugin.schema) return plugin.schema;
     return {};
@@ -50,8 +53,14 @@ websiteSchema.methods.checkIfActive = function(){
 };
 
 websiteSchema.methods.refreshPlatform = function(){
-    return Promise
-        .reduce(PluginManager.getPlugins('platforms'), (prevPlatform, platform) => {
+    if (this.started == true) return Promise.reject('Refresh is already running..');
+
+    this.refreshStatus.running = true;
+    this.refreshStatus.started = new Date();
+
+    return this
+        .save()
+        .then(() => Promise.reduce(PluginManager.getPlugins('platforms'), (prevPlatform, platform) => {
             // First, check if a platform was already detected
             if(prevPlatform) return;
 
@@ -63,27 +72,49 @@ websiteSchema.methods.refreshPlatform = function(){
                     return true;
                 }
             });
-        }, 0);
+        }, 0))
+        .catch(err => console.error('A plugin did\'n t catch all problems. Please report this to the plugin module author.',err))
+        .then(() => {
+            this.refreshStatus.finished = new Date();
+            this.refreshStatus.running = false;
+            return this.save();
+        });
 };
 
 websiteSchema.methods.ping = function(){
     console.log('[PING]', this.domain, 'START');
-    return request({
-        uri: 'http://' + this.domain,
-        resolveWithFullResponse: true,
-        time: true
-    }).catch(err => {
-        return {
-            statusCode: (err.error.code == 'ETIMEDOUT') ? 408 : 520
-        };
-    }).then(res => {
-        return Promise.map(PluginManager.getPlugins('websites'), plugin => {
-            if(typeof plugin.ping == 'function')
-                return plugin.ping(this, res);
+    if (this.started == true) return Promise.reject('Ping is already running..');
+
+    this.pingStatus.running = true;
+    this.pingStatus.started = new Date();
+
+    return this
+        .save()
+        .then(() => request({
+            uri: 'http://' + this.domain,
+            resolveWithFullResponse: true,
+            time: true
+        }))
+        .catch(err => {
+            return {
+                statusCode: (err.error.code == 'ETIMEDOUT') ? 408 : 520
+            };
+        })
+        .then(res => {
+            return Promise.map(PluginManager.getPlugins('websites'), plugin => {
+                if(typeof plugin.ping == 'function')
+                    return plugin.ping(this, res);
+            });
+        })
+        .then(() => {
+            console.log('[PING]', this.domain, 'DONE');
+        })
+        .catch(err => console.error('A plugin did\'n t catch all problems. Please report this to the plugin module author.',err))
+        .then(() => {
+            this.pingStatus.finished = new Date();
+            this.pingStatus.running = false;
+            return this.save();
         });
-    }).then(() => {
-        console.log('[PING]', this.domain, 'DONE');
-    });
 };
 
 var Website = mongoose.model('Website', websiteSchema);

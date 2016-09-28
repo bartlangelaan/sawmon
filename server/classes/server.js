@@ -5,6 +5,7 @@ var Promise = require('bluebird');
 const mongoose = require('mongoose');
 const getConnection = require('../functions/getConnection');
 var PluginManager = require('../classes/plugin-manager');
+const ActionStatus = require('./action-status');
 
 var serverSchema = mongoose.Schema(Object.assign({
     name: String,
@@ -13,6 +14,14 @@ var serverSchema = mongoose.Schema(Object.assign({
     privateKey: {
         type: String,
         select: false
+    },
+    pingStatus: {
+        type: ActionStatus,
+        default: {}
+    },
+    refreshStatus: {
+        type: ActionStatus,
+        default: {}
     }
 }, ...PluginManager.getPlugins('servers').map(plugin => {
     if(plugin.schema) return plugin.schema;
@@ -20,17 +29,43 @@ var serverSchema = mongoose.Schema(Object.assign({
 })));
 
 serverSchema.methods.refresh = function(){
-    return Promise.map(PluginManager.getPlugins('servers'), plugin => {
-        if(typeof plugin.refresh == 'function')
-            return plugin.refresh(this, getConnection(this));
-    }, {concurrency: 1});
+    if (this.started == true) return Promise.reject('Refresh is already running..');
+
+    this.refreshStatus.running = true;
+    this.refreshStatus.started = new Date();
+
+    return this
+        .save()
+        .then(() => Promise.map(PluginManager.getPlugins('servers'), plugin => {
+            if (typeof plugin.refresh == 'function')
+                return plugin.refresh(this, getConnection(this));
+        }, {concurrency: 1}))
+        .catch(err => console.error('A plugin did\'n t catch all problems. Please report this to the plugin module author.',err))
+        .then(() => {
+            this.refreshStatus.finished = new Date();
+            this.refreshStatus.running = false;
+            return this.save();
+        });
 };
 
 serverSchema.methods.ping = function(){
-    return Promise.map(PluginManager.getPlugins('servers'), plugin => {
-        if(typeof plugin.ping == 'function')
-            return plugin.ping(this, getConnection(this));
-    });
+    if (this.started == true) return Promise.reject('Ping is already running..');
+
+    this.pingStatus.running = true;
+    this.pingStatus.started = new Date();
+
+    return this
+        .save()
+        .then(() => Promise.map(PluginManager.getPlugins('servers'), plugin => {
+            if(typeof plugin.ping == 'function')
+                return plugin.ping(this, getConnection(this));
+        }))
+        .catch(err => console.error('A plugin did\'n t catch all problems. Please report this to the plugin module author.',err))
+        .then(() => {
+            this.pingStatus.finished = new Date();
+            this.pingStatus.running = false;
+            return this.save();
+        });
 };
 
 var Server = mongoose.model('Server', serverSchema);
