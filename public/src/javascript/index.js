@@ -79,8 +79,8 @@ $('.container').on('click', '.edit-item', function(){
                 var random = Array(5+1).join((Math.random().toString(36)+'00000000000000000').slice(2, 18)).slice(0, 5);
 
                 var inputs = {
-                    'textarea': () => `<textarea rows="3" class="form-control" name="${field.key}" placeholder="${field.placeholder}" ></textarea>`,
-                    'default': () => `<input type="${field.type}" class="form-control" name="${field.key}" id="${field.key + random}" placeholder="${field.placeholder}" required>`
+                    'textarea': () => `<textarea rows="3" class="form-control ${field.secret ? 'secret' : ''}" name="${field.key}" placeholder="${field.placeholder}" ${field.secret ? 'readonly' : ''}>${field.secret ? '[click to edit]' : ''}</textarea>`,
+                    'default': () => `<input type="${field.type}" class="form-control ${field.secret ? 'secret' : ''}" name="${field.key}" id="${field.key + random}" placeholder="${field.placeholder}" ${field.secret ? 'readOnly value="[click to edit]"' : ''}>`
                 };
                 return `<div class="form-group">
                             <label for="${field.key + random}" class="col-sm-3 control-label">${field.name}</label>
@@ -117,6 +117,11 @@ $('.container').on('click', '.edit-item', function(){
 $('#editor').submit(function(){
     var $this = $(this);
     var $alert = $this.find('.alert');
+
+    /**
+     * Make all secret inputs disabled, so they won't update
+     */
+    $('.secret', this).attr('disabled', true);
 
     /**
      * Hide the error alert
@@ -161,4 +166,11 @@ $('#editor').submit(function(){
      * Prevent form from submitting
      */
     return false;
+});
+
+$('#editor-modal').on('click', '.secret', function(){
+    console.log(this);
+    $(this).removeClass('secret');
+    $(this).val('');
+    $(this).removeAttr('readOnly');
 });
