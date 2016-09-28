@@ -38,7 +38,7 @@ module.exports = server => {
                 /**
                  * On error, check if connected to server
                  */
-                if(err.message != 'Not connected') throw err;
+                if(err.message != 'Not connected' && err.message != 'Not connected to server') throw err;
 
                 console.log('Not connected anymore, trying to reconnect..');
 
@@ -48,7 +48,7 @@ module.exports = server => {
                 return connect(queue, server, connection).then(() => {
                     return connection.execCommand(...args);
                 });
-            }).then(() => console.log('Command executed'));
+            });
 
         }
     };
