@@ -19,8 +19,14 @@ var websiteSchema = mongoose.Schema(Object.assign({
     },
     platform: String,
     active: Boolean,
-    pingStatus: ActionStatus,
-    refreshStatus: ActionStatus
+    pingStatus: {
+        type: ActionStatus,
+        default: {}
+    },
+    refreshStatus: {
+        type: ActionStatus,
+        default: {}
+    }
 }, ...PluginManager.getPlugins('websites').map(plugin => {
     if(plugin.schema) return plugin.schema;
     return {};
@@ -29,51 +35,14 @@ var websiteSchema = mongoose.Schema(Object.assign({
 websiteSchema.plugin(require('mongoose-autopopulate'));
 
 websiteSchema.methods.refresh = function(){
-    return this.checkIfActive().then(() => {
-        //return this.refreshPlatform();
-    }).then(() => {
-        // return Promise.map(plugins.websites, plugin => {
-        //     if(typeof plugin.refresh == 'function')
-        //         return plugin.refresh(this, getConnection(this.server));
-        // });
-    });
-};
-
-websiteSchema.methods.checkIfActive = function(){
-    return dns.lookupAsync(this.domain.replace('*', 'star')).then(ip => {
-        this.active = (ip == this.server.ip);
-    }).catch({code: 'ENOTFOUND'}, () => {
-        this.active = false;
-    }).catch(err => {
-        console.log('[IP CHECK] ERROR', err.code, 'checking', this.domain);
-        this.active = false;
-    }).then(() =>
-        this.save()
-    );
-};
-
-websiteSchema.methods.refreshPlatform = function(){
-    if (this.started == true) return Promise.reject('Refresh is already running..');
+    if (this.refreshStatus.started == true) return Promise.reject('Refresh is already running..');
 
     this.refreshStatus.running = true;
     this.refreshStatus.started = new Date();
 
     return this
         .save()
-        .then(() => Promise.reduce(PluginManager.getPlugins('platforms'), (prevPlatform, platform) => {
-            // First, check if a platform was already detected
-            if(prevPlatform) return;
-
-            // Then, test the platform
-            return platform[1].test(this, getConnection(this.server)).then(testResult => {
-                if(testResult) {
-                    this.platform = platform[0];
-                    this.save();
-                    return true;
-                }
-            });
-        }, 0))
-        .catch(err => console.error('A plugin did\'n t catch all problems. Please report this to the plugin module author.',err))
+        .then(() => PluginManager.getPromise('websites', 'refresh'))
         .then(() => {
             this.refreshStatus.finished = new Date();
             this.refreshStatus.running = false;
@@ -82,8 +51,7 @@ websiteSchema.methods.refreshPlatform = function(){
 };
 
 websiteSchema.methods.ping = function(){
-    console.log('[PING]', this.domain, 'START');
-    if (this.started == true) return Promise.reject('Ping is already running..');
+    if (this.pingStatus.started == true) return Promise.reject('Refresh is already running..');
 
     this.pingStatus.running = true;
     this.pingStatus.started = new Date();
@@ -100,16 +68,7 @@ websiteSchema.methods.ping = function(){
                 statusCode: (err.error.code == 'ETIMEDOUT') ? 408 : 520
             };
         })
-        .then(res => {
-            return Promise.map(PluginManager.getPlugins('websites'), plugin => {
-                if(typeof plugin.ping == 'function')
-                    return plugin.ping(this, res);
-            });
-        })
-        .then(() => {
-            console.log('[PING]', this.domain, 'DONE');
-        })
-        .catch(err => console.error('A plugin did\'n t catch all problems. Please report this to the plugin module author.',err))
+        .then(res => PluginManager.getPromise('websites', 'refresh', {instance: this, response: res}))
         .then(() => {
             this.pingStatus.finished = new Date();
             this.pingStatus.running = false;

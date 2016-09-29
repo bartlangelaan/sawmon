@@ -121,6 +121,41 @@ class PluginManager{
     }
 
     /**
+     * Returns a promise of all plugin promises.
+     * @param {string} category
+     * @param {string} func
+     * @param {object} passTrough
+     * @returns Promise
+     */
+    getPromise(category, func, passTrough){
+        let promises = this
+            /**
+             * Get all plugins of this category
+             */
+            .getPlugins(category)
+            /**
+             * That have the specified function
+             */
+            .filter(pluginCategory => {
+                return typeof pluginCategory[func] == 'function';
+            })
+            /**
+             * And return all that functions
+             * A double function is used, so the function isn't inmediately invoked.
+             */
+            .map(pluginCategory => () => pluginCategory[func](passTrough));
+
+        /**
+         * Resolve all promises
+         */
+        return Promise
+            .all(promises)
+            .catch(err => console.error(
+                'A plugin did\'n t catch all problems. Please report this to the plugin module author.', err
+            ));
+    }
+
+    /**
      * Get all installed plugins, as defined in the database
      * @returns {Promise.<Array.<Object>>}
      */

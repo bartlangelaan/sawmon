@@ -29,18 +29,14 @@ var serverSchema = mongoose.Schema(Object.assign({
 })));
 
 serverSchema.methods.refresh = function(){
-    if (this.started == true) return Promise.reject('Refresh is already running..');
+    if (this.refreshStatus.started == true) return Promise.reject('Refresh is already running..');
 
     this.refreshStatus.running = true;
     this.refreshStatus.started = new Date();
 
     return this
         .save()
-        .then(() => Promise.map(PluginManager.getPlugins('servers'), plugin => {
-            if (typeof plugin.refresh == 'function')
-                return plugin.refresh(this, getConnection(this));
-        }, {concurrency: 1}))
-        .catch(err => console.error('A plugin did\'n t catch all problems. Please report this to the plugin module author.',err))
+        .then(() => PluginManager.getPromise('websites', 'refresh'))
         .then(() => {
             this.refreshStatus.finished = new Date();
             this.refreshStatus.running = false;
