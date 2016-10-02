@@ -50,7 +50,7 @@ module.exports.servers.display = [
     },
     {
         name: 'Actions',
-        value: (server) =>
+        value: server =>
         `<a href="api/servers/${server._id}/refresh" class='btn btn-default btn-sm ${server.refreshStatus.running ? 'disabled' : ''}' target="iframe" onclick="this.classList.add('disabled')">Refresh</a>` +
         `<a href="api/servers/${server._id}/ping" class='btn btn-default btn-sm ${server.pingStatus.running ? 'disabled' : ''}'' target="iframe" onclick="this.classList.add('disabled')">Ping</a>` +
         `<a href='#' class='btn btn-default btn-sm edit-item' data-item-type='server' data-item-id="${server._id}">Edit</a>`
@@ -65,27 +65,27 @@ module.exports.websites = {};
 module.exports.websites.display = [
     {
         name: 'Domain',
-        value: (website) => website.domain ? `${website.domain}` : null
+        value: website => website.domain ? `${website.domain}` : null
     },
     {
         name: 'Webroot',
-        value: (website) => website.root ? `${website.root}` : null
+        value: website => website.root ? `${website.root}` : null
     },
     {
         name: 'Server',
-        value: (website) => website.server.name ? `${website.server.name}` : null
+        value: website => website.server.name ? `${website.server.name}` : null
     },
     {
         name: 'Platform',
-        value: (website) => website.platform ? `${website.platform}` : null
+        value: website => website.platform ? `${website.platform}` : null
     },
     {
         name: 'Active',
-        value: (website) => website.active ? 'yes' : 'no'
+        value: website => website.active ? 'yes' : 'no'
     },
     {
         name: 'Actions',
-        value: (website) =>
+        value: website =>
         `<a href="api/websites/${website._id}/refresh" class='btn btn-default btn-sm ${website.refreshStatus.running ? 'disabled' : ''}' target="iframe" onclick="this.classList.add('disabled')">Refresh</a>` +
         `<a href="api/websites/${website._id}/ping" class='btn btn-default btn-sm ${website.pingStatus.running ? 'disabled' : ''}' target="iframe" onclick="this.classList.add('disabled')">Ping</a>`
     }

@@ -3,7 +3,7 @@ const Promise = require('bluebird');
 const debug = require('debug')('sawmon:plugin-manager');
 const npmi = Promise.promisify(require('npmi'));
 
-let pluginSchema = mongoose.Schema({
+const pluginSchema = mongoose.Schema({
     name: {
         type: String,
         unique: true
@@ -11,7 +11,7 @@ let pluginSchema = mongoose.Schema({
     version: String
 });
 
-var Plugin = mongoose.model('Plugin', pluginSchema);
+const Plugin = mongoose.model('Plugin', pluginSchema);
 
 
 /**
@@ -27,14 +27,16 @@ var Plugin = mongoose.model('Plugin', pluginSchema);
  * @property {PluginCategory} servers
  */
 
-class PluginManager{
+class PluginManager {
+
     /**
      * This should only be called once.
      * @returns {Promise}
      */
-    initialize(){
+    initialize () {
 
         debug('Initializing PluginManager');
+
         /**
          * Holds the internal array of plugins.
          * @type {Array.<Plugin>}
@@ -52,20 +54,26 @@ class PluginManager{
 
             debug('Installing all saved plugins');
             return Promise.map(plugins, plugin => this.addPlugin(plugin));
+
         });
+
     }
 
     /**
      * Installs a plugin, and adds it to the database on success
      */
-    addPlugin(plugin){
-        if(plugin.name.charAt(0) == '.'){
+    addPlugin (plugin) {
+
+        if (plugin.name.charAt(0) == '.') {
+
             plugin.localInstall = true;
+
         }
         debug('Installing plugin %s', plugin.name);
         return npmi(plugin).then(() => {
+
             const nameToRequire = (plugin.localInstall ? '../../' : '') + plugin.name;
-            let pluginInstance = {
+            const pluginInstance = {
                 require: require(nameToRequire),
                 database: plugin
             };
@@ -80,27 +88,38 @@ class PluginManager{
             /**
              * Check if already in database
              */
-            if(!plugin._id){
+            if (!plugin._id) {
+
+
                 /**
                  * Get package.json and save in database
                  */
-                var modulePackage = require(nameToRequire + '/package.json');
-                var dbPlugin = new Plugin({
+                const modulePackage = require(nameToRequire + '/package.json');
+                const dbPlugin = new Plugin({
                     name: plugin.name,
                     version: modulePackage.version
                 });
                 pluginInstance.database = dbPlugin;
                 return dbPlugin.save().then(() => {
+
                     debug('Saved %s', plugin.name);
+
                 });
+
             }
+
         }).catch(err => {
+
             console.error('Failed installing plugin', err);
+
         });
+
     }
 
-    removePlugin(pluginId){
+    removePlugin (pluginId) {
+
         return Plugin.findOne({_id: pluginId}).exec().then(plugin => {
+
             // Remove from database
             plugin.remove();
 
@@ -110,10 +129,14 @@ class PluginManager{
 
             // Delete from _plugins array
             const index = this._plugins.indexOf(PluginInstance);
-            if(index > -1){
+            if (index > -1) {
+
                 this._plugins.splice(index, 1);
+
             }
+
         });
+
     }
 
     /**
@@ -122,39 +145,55 @@ class PluginManager{
      * @param {boolean} onlyReturnCategory
      * @returns PluginCategory
      */
-    getPlugins(category, onlyReturnCategory = true){
+    getPlugins (category, onlyReturnCategory = true) {
+
         let plugins = this._plugins;
-        if(!plugins) return [];
+        if (!plugins) return [];
 
         plugins = plugins.sort((a, b) => {
-            if (a.require.dependencies && a.require.dependencies.indexOf(b.database.name) != -1) { // a has a dependency on b
+
+            if (a.require.dependencies && a.require.dependencies.indexOf(b.database.name) != -1) {
+
+ // a has a dependency on b
                 return -1;
+
             }
-            if (b.require.dependencies && b.require.dependencies.indexOf(a.database.name) != -1) { // b has a dependency on a
+            if (b.require.dependencies && b.require.dependencies.indexOf(a.database.name) != -1) {
+
+ // b has a dependency on a
                 return 1;
+
             }
 
             // no dependencies defined
             return 0;
+
         });
 
         /**
          * Filter on category
          */
-        if(category) {
+        if (category) {
+
             plugins = plugins.filter(plugin => {
+
                 return typeof plugin.require[category] == 'object';
+
             });
+
         }
 
         /**
          * Only return the category itself
          */
-        if(onlyReturnCategory){
+        if (onlyReturnCategory) {
+
             plugins = plugins.map(plugin => plugin.require[category]);
+
         }
 
         return plugins;
+
     }
 
     /**
@@ -164,30 +203,38 @@ class PluginManager{
      * @param {object} passTrough
      * @returns Promise
      */
-    getPromise(category, func, passTrough){
-        let promises = {};
+    getPromise (category, func, passTrough) {
+
+        const promises = {};
 
         this
+
             /**
              * Get all plugins of this category
              */
             .getPlugins(category, false)
+
             /**
              * That have the specified function
              */
             .filter(plugin => {
+
                 return typeof plugin.require[category][func] == 'function';
+
             })
             .forEach(plugin => {
+
+
                 /**
                  * Get all the dependencies as promises
                  */
-                let dependencies = plugin.require.dependencies ? plugin.require.dependencies.map(dependency => promises[dependency]) : [];
+                const dependencies = plugin.require.dependencies ? plugin.require.dependencies.map(dependency => promises[dependency]) : [];
 
                 /**
                  * Execute this after all dependencies
                  */
                 promises[plugin.database.name] = Promise.all(dependencies).then(() => plugin.require[category][func](passTrough));
+
             });
 
 
@@ -199,14 +246,17 @@ class PluginManager{
             .catch(err => console.error(
                 'A plugin did\'n t catch all problems. Please report this to the plugin module author.', err
             ));
+
     }
 
     /**
      * Get all installed plugins, as defined in the database
      * @returns {Promise.<Array.<Object>>}
      */
-    getInstalledPlugins(){
+    getInstalledPlugins () {
+
         return Plugin.find();
+
     }
 }
 

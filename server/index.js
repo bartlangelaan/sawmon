@@ -1,11 +1,11 @@
 'use strict';
 
-var routes = require('./routes/index');
-var refresh = require('./functions/refresh');
-var ping = require('./functions/ping');
+const routes = require('./routes/index');
+const refresh = require('./functions/refresh');
+const ping = require('./functions/ping');
 
-const refreshTime = 60*60*1000;
-const pingTime = 5*60*1000;
+const refreshTime = 60 * 60 * 1000;
+const pingTime = 5 * 60 * 1000;
 
 module.exports = app => {
 
@@ -16,4 +16,5 @@ module.exports = app => {
     //
     // setInterval(() => ping(pingTime), pingTime);
     // ping(pingTime);
+
 };

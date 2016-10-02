@@ -1,33 +1,42 @@
 {
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "es6": true,
-        "node": true
-    },
-    "extends": "eslint:recommended",
-    "parserOptions": {
-        "sourceType": "module"
-    },
-    "rules": {
-        "indent": [
-            "error",
-            4
-        ],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
-        "quotes": [
-            "error",
-            "single"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ],
-        "no-console": [
-            "off"
-        ]
-    }
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": "eslint:all",
+  "rules": {
+    "indent": [
+      "error",
+      4
+    ],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "valid-jsdoc": "warn",
+    "quote-props": "off",
+    "one-var": ["error", "never"],
+    "sort-keys": "off",
+    "no-magic-numbers": "off",
+    "global-require": "off",
+    "newline-per-chained-call": "off",
+    "max-len": "off",
+    "multiline-ternary": "off",
+    "func-style": ["error", "expression", {"allowArrowFunctions": true}],
+    "eqeqeq": "off",
+    "require-jsdoc": "warn",
+    "no-underscore-dangle": "off",
+    "no-process-env": "off",
+    "arrow-parens": ["error", "as-needed"]
+  }
 }

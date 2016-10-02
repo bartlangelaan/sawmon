@@ -1,15 +1,15 @@
 'use strict';
 
-var Promise = require('bluebird');
-var dns = Promise.promisifyAll(require('dns'));
-var PluginManager = require('../classes/plugin-manager');
-var getConnection = require('../functions/getConnection');
-var request = require('request-promise');
+const Promise = require('bluebird');
+const dns = Promise.promisifyAll(require('dns'));
+const PluginManager = require('../classes/plugin-manager');
+const getConnection = require('../functions/getConnection');
+const request = require('request-promise');
 const ActionStatus = require('./action-status');
 
 const mongoose = require('mongoose');
 
-var websiteSchema = mongoose.Schema(Object.assign({
+const websiteSchema = mongoose.Schema(Object.assign({
     domain: String,
     root: String,
     server: {
@@ -28,13 +28,16 @@ var websiteSchema = mongoose.Schema(Object.assign({
         default: {}
     }
 }, ...PluginManager.getPlugins('websites').map(plugin => {
-    if(plugin.schema) return plugin.schema;
+
+    if (plugin.schema) return plugin.schema;
     return {};
+
 })));
 
 websiteSchema.plugin(require('mongoose-autopopulate'));
 
-websiteSchema.methods.refresh = function(){
+websiteSchema.methods.refresh = function () {
+
     if (this.refreshStatus.started == true) return Promise.reject('Refresh is already running..');
 
     this.refreshStatus.running = true;
@@ -44,13 +47,17 @@ websiteSchema.methods.refresh = function(){
         .save()
         .then(() => PluginManager.getPromise('websites', 'refresh'))
         .then(() => {
+
             this.refreshStatus.finished = new Date();
             this.refreshStatus.running = false;
             return this.save();
+
         });
+
 };
 
-websiteSchema.methods.ping = function(){
+websiteSchema.methods.ping = function () {
+
     if (this.pingStatus.started == true) return Promise.reject('Refresh is already running..');
 
     this.pingStatus.running = true;
@@ -64,18 +71,21 @@ websiteSchema.methods.ping = function(){
             time: true
         }))
         .catch(err => {
-            return {
-                statusCode: (err.error.code == 'ETIMEDOUT') ? 408 : 520
-            };
+
+            return {statusCode: err.error.code == 'ETIMEDOUT' ? 408 : 520};
+
         })
         .then(res => PluginManager.getPromise('websites', 'refresh', {instance: this, response: res}))
         .then(() => {
+
             this.pingStatus.finished = new Date();
             this.pingStatus.running = false;
             return this.save();
+
         });
+
 };
 
-var Website = mongoose.model('Website', websiteSchema);
+const Website = mongoose.model('Website', websiteSchema);
 
 module.exports = Website;
