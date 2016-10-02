@@ -22,6 +22,10 @@ mongoose.connect(dbUrl).then(() => {
 
     console.log('All plugins installed.');
 
+    require('./server/classes/server').update({}, {$set: {'refreshStatus.running': false, 'pingStatus.running': false}}, {multi: true}).exec();
+    require('./server/classes/website').update({}, {$set: {'refreshStatus.running': false, 'pingStatus.running': false}}, {multi: true}).exec();
+
+
     /**
      * Create the server
      */
