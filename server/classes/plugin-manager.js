@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
-
+const debug = require('debug')('sawmon:plugin-manager');
 const npmi = Promise.promisify(require('npmi'));
 
 let pluginSchema = mongoose.Schema({
@@ -34,23 +34,27 @@ class PluginManager{
      */
     initialize(){
 
+        debug('Initializing PluginManager');
         /**
          * Holds the internal array of plugins.
          * @type {Array.<Plugin>}
          * @private
          */
-        this._plugins = [];
+        this._plugins = [
+            {
+                require: require('../../plugins/sawmon-server-core'),
+                database: {name: 'server-core'}
+            },
+            {
+                require: require('../../plugins/sawmon-website-core'),
+                database: {name: 'website-core'}
+            }
+        ];
 
-        this._plugins.push(require('../../plugins/sawmon-server-core'));
-        this._plugins.push(require('../../plugins/sawmon-website-core'));
-
-        /**
-         * Find all saved plugins
-         */
+        debug('Finding plugins saved in database')
         return Plugin.find().then(plugins => {
-            /**
-             * Install all saved plugins
-             */
+
+            debug('Installing all saved plugins');
             return Promise.map(plugins, plugin => this.addPlugin(plugin));
         });
     }
@@ -62,14 +66,20 @@ class PluginManager{
         if(plugin.name.charAt(0) == '.'){
             plugin.localInstall = true;
         }
-        console.log('Installing plugin ', plugin);
+        debug('Installing plugin %s', plugin.name);
         return npmi(plugin).then(() => {
             const nameToRequire = (plugin.localInstall ? '../../' : '') + plugin.name;
+            let pluginInstance = {
+                require: require(nameToRequire),
+                database: plugin
+            };
 
             /**
              * Add plugin to internal array
              */
-            this._plugins.push(require(nameToRequire));
+            this._plugins.push(pluginInstance);
+
+            debug('Installed %s', plugin.name);
 
             /**
              * Check if already in database
@@ -83,8 +93,9 @@ class PluginManager{
                     name: plugin.name,
                     version: modulePackage.version
                 });
+                pluginInstance.database = dbPlugin;
                 return dbPlugin.save().then(() => {
-                    console.log('Installed', plugin);
+                    debug('Saved %s', plugin.name);
                 });
             }
         }).catch(err => {
@@ -112,12 +123,42 @@ class PluginManager{
     /**
      * Gets an array of plugins, given a category
      * @param {string} category
+     * @param {boolean} onlyReturnCategory
      * @returns PluginCategory
      */
-    getPlugins(category){
-        return this._plugins.filter(plugin => {
-            return typeof plugin[category] == 'object';
-        }).map(plugin => plugin[category]);
+    getPlugins(category, onlyReturnCategory = true){
+        let plugins = this._plugins;
+        if(!plugins) return [];
+
+        plugins = plugins.sort((a, b) => {
+            if (a.require.dependencies && a.require.dependencies.indexOf(b.database.name) != -1) { // a has a dependency on b
+                return -1;
+            }
+            if (b.require.dependencies && b.require.dependencies.indexOf(a.database.name) != -1) { // b has a dependency on a
+                return 1;
+            }
+
+            // no dependencies defined
+            return 0;
+        });
+
+        /**
+         * Filter on category
+         */
+        if(category) {
+            plugins = plugins.filter(plugin => {
+                return typeof plugin.require[category] == 'object';
+            });
+        }
+
+        /**
+         * Only return the category itself
+         */
+        if(onlyReturnCategory){
+            plugins = plugins.map(plugin => plugin.require[category]);
+        }
+
+        return plugins;
     }
 
     /**
@@ -128,28 +169,37 @@ class PluginManager{
      * @returns Promise
      */
     getPromise(category, func, passTrough){
-        let promises = this
+        let promises = {};
+
+        this
             /**
              * Get all plugins of this category
              */
-            .getPlugins(category)
+            .getPlugins(category, false)
             /**
              * That have the specified function
              */
-            .filter(pluginCategory => {
-                return typeof pluginCategory[func] == 'function';
+            .filter(plugin => {
+                return typeof plugin.require[category][func] == 'function';
             })
-            /**
-             * And return all that functions
-             * A double function is used, so the function isn't inmediately invoked.
-             */
-            .map(pluginCategory => () => pluginCategory[func](passTrough));
+            .forEach(plugin => {
+                /**
+                 * Get all the dependencies as promises
+                 */
+                let dependencies = plugin.require.dependencies ? plugin.require.dependencies.map(dependency => promises[dependency]) : [];
+
+                /**
+                 * Execute this after all dependencies
+                 */
+                promises[plugin.database.name] = Promise.all(dependencies).then(() => plugin.require[category][func](passTrough));
+            });
+
 
         /**
          * Resolve all promises
          */
         return Promise
-            .all(promises)
+            .all(Object.keys(promises).map(key => promises[key]))
             .catch(err => console.error(
                 'A plugin did\'n t catch all problems. Please report this to the plugin module author.', err
             ));
