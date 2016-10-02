@@ -169,8 +169,5 @@ $('#editor').submit(function(){
 });
 
 $('#editor-modal').on('click', '.secret', function(){
-    console.log(this);
-    $(this).removeClass('secret');
-    $(this).val('');
-    $(this).removeAttr('readOnly');
+    $(this).removeClass('secret').val('').removeAttr('readOnly');
 });
