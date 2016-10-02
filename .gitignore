@@ -1,7 +1,8 @@
 node_modules
-id_dsa
 servers.json
 npm-debug.log
 .idea
 /public/bundle.js
 /public/files/
+plugins/*
+!plugins/core

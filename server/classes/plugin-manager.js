@@ -42,16 +42,12 @@ class PluginManager{
          */
         this._plugins = [
             {
-                require: require('../../plugins/sawmon-server-core'),
-                database: {name: 'server-core'}
-            },
-            {
-                require: require('../../plugins/sawmon-website-core'),
-                database: {name: 'website-core'}
+                require: require('../../plugins/core'),
+                database: {name: 'core', version: '0.0.0'}
             }
         ];
 
-        debug('Finding plugins saved in database')
+        debug('Finding plugins saved in database');
         return Plugin.find().then(plugins => {
 
             debug('Installing all saved plugins');
