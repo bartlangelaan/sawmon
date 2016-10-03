@@ -34,9 +34,15 @@
     "multiline-ternary": "off",
     "func-style": ["error", "expression", {"allowArrowFunctions": true}],
     "eqeqeq": "off",
-    "require-jsdoc": "warn",
     "no-underscore-dangle": "off",
     "no-process-env": "off",
-    "arrow-parens": ["error", "as-needed"]
+    "arrow-parens": ["error", "as-needed"],
+    "new-cap": "off",
+    "curly": "off",
+    "no-trailing-spaces": "warn",
+    "dot-location": ["error", "property"],
+    "func-names": ["error", "never"],
+    "require-jsdoc": ["warn", {"require": {"MethodDefinition": true}}],
+    "no-ternary": "off"
   }
 }

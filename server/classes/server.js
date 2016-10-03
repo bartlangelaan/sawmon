@@ -28,6 +28,7 @@ const serverSchema = mongoose.Schema(Object.assign({
 }, ...PluginManager.getPlugins('servers').map(plugin => {
 
     if (plugin.schema) return plugin.schema;
+
     return {};
 
 })));
@@ -37,6 +38,7 @@ serverSchema.methods.refresh = function () {
     if (this.refreshStatus.started == true) {
 
         debug('Tried to start refresh but already running..');
+
         return Promise.reject('Refresh is already running..');
 
     }
@@ -54,6 +56,7 @@ serverSchema.methods.refresh = function () {
             this.refreshStatus.finished = new Date();
             this.refreshStatus.running = false;
             debug('Refresh done!');
+
             return this.save();
 
         });
@@ -75,11 +78,12 @@ serverSchema.methods.ping = function () {
                 return plugin.ping(this, getConnection(this));
 
         }))
-        .catch(err => console.error('A plugin did\'n t catch all problems. Please report this to the plugin module author.', err))
+        .catch(err => debug('A plugin did\'n t catch all problems. Please report this to the plugin module author.', err))
         .then(() => {
 
             this.pingStatus.finished = new Date();
             this.pingStatus.running = false;
+
             return this.save();
 
         });

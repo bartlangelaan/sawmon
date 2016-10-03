@@ -50,9 +50,11 @@ class PluginManager {
         ];
 
         debug('Finding plugins saved in database');
+
         return Plugin.find().then(plugins => {
 
             debug('Installing all saved plugins');
+
             return Promise.map(plugins, plugin => this.addPlugin(plugin));
 
         });
@@ -70,6 +72,7 @@ class PluginManager {
 
         }
         debug('Installing plugin %s', plugin.name);
+
         return npmi(plugin).then(() => {
 
             const nameToRequire = (plugin.localInstall ? '../../' : '') + plugin.name;
@@ -148,24 +151,25 @@ class PluginManager {
     getPlugins (category, onlyReturnCategory = true) {
 
         let plugins = this._plugins;
+
         if (!plugins) return [];
 
-        plugins = plugins.sort((a, b) => {
+        plugins = plugins.sort((plugin1, plugin2) => {
 
-            if (a.require.dependencies && a.require.dependencies.indexOf(b.database.name) != -1) {
+            if (plugin1.require.dependencies && plugin1.require.dependencies.indexOf(plugin2.database.name) != -1) {
 
- // a has a dependency on b
+                // plugin1 has a dependency on plugin2
                 return -1;
 
             }
-            if (b.require.dependencies && b.require.dependencies.indexOf(a.database.name) != -1) {
+            if (plugin2.require.dependencies && plugin2.require.dependencies.indexOf(plugin1.database.name) != -1) {
 
- // b has a dependency on a
+                // plugin2 has a dependency on plugin1
                 return 1;
 
             }
 
-            // no dependencies defined
+            // no dependencies for each other defined
             return 0;
 
         });
