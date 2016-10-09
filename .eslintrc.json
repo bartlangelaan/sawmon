@@ -43,6 +43,8 @@
     "dot-location": ["error", "property"],
     "func-names": ["error", "never"],
     "require-jsdoc": ["warn", {"require": {"MethodDefinition": true}}],
-    "no-ternary": "off"
+    "no-ternary": "off",
+    "no-confusing-arrow": ["error", {"allowParens": true}],
+    "no-extra-parens": "off"
   }
 }

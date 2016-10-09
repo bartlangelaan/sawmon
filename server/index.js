@@ -1,11 +1,11 @@
 'use strict';
 
 const routes = require('./routes/index');
-const refresh = require('./functions/refresh');
-const ping = require('./functions/ping');
+// const refresh = require('./functions/refresh');
+// const ping = require('./functions/ping');
 
-const refreshTime = 60 * 60 * 1000;
-const pingTime = 5 * 60 * 1000;
+// const refreshTime = 60 * 60 * 1000;
+// const pingTime = 5 * 60 * 1000;
 
 module.exports = app => {
 

@@ -1,6 +1,8 @@
+/* eslint-disable */
 'use strict';
 
 const $ = require('jquery');
+
 require('expose?$!expose?jQuery!jquery');
 require('bootstrap/dist/js/bootstrap.js');
 require('datatables.net');

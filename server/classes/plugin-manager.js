@@ -1,3 +1,5 @@
+'use strict';
+
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
 const debug = require('debug')('sawmon:plugin-manager');
