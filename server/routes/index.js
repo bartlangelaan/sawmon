@@ -7,6 +7,7 @@ const PluginManager = require('../classes/plugin-manager');
 function convertToDataTable (data, plugins) {
 
     const dt = {columns: []};
+
     dt.data = data.map(item =>
 
         /**
@@ -39,24 +40,29 @@ function convertToDataTable (data, plugins) {
                 }, displayData);
 
             }
+
             return displayData;
 
         }, {})
     );
-    dt.columns = dt.columns.map(function (column) {
+    dt.columns = dt.columns.map(column => (
 
-        return {title: column, data: column};
+        {
+            title: column,
+            data: column
+        }
 
-    });
+    ));
+
     return dt;
 
 }
 
 function createRoutes (singular, plural) {
 
-    const DBModel = require('../classes/' + singular);
+    const DBModel = require(`../classes/${singular}`);
 
-    router.get('/' + plural, (req, res) => {
+    router.get(`/${plural}`, (req, res) => {
 
         DBModel.find().then(models => res.json(
             convertToDataTable(models, PluginManager.getPlugins(plural))
@@ -64,7 +70,7 @@ function createRoutes (singular, plural) {
 
     });
 
-    router.post('/' + plural, (req, res) => {
+    router.post(`/${plural}`, (req, res) => {
 
         new DBModel(req.body).save().then(() => {
 
@@ -78,17 +84,17 @@ function createRoutes (singular, plural) {
 
     });
 
-    router.get('/' + plural + '/fields', (req, res) => {
+    router.get(`/${plural}/fields`, (req, res) => {
 
         res.json([].concat.apply([],
             PluginManager.getPlugins(plural).map(plugin =>
-                plugin.fields ? plugin.fields : []
+                (plugin.fields ? plugin.fields : [])
             )
         ));
 
     });
 
-    router.get('/' + plural + '/:id', (req, res) => {
+    router.get(`/${plural}/:id`, (req, res) => {
 
         DBModel.findOne({_id: req.params.id}).then(model => res.json(
             req.query.parsed ? convertToDataTable([model], PluginManager.getPlugins(plural)) : model
@@ -96,7 +102,7 @@ function createRoutes (singular, plural) {
 
     });
 
-    router.post('/' + plural + '/:id', (req, res) => {
+    router.post(`/${plural}/:id`, (req, res) => {
 
         DBModel.update({_id: req.params.id}, req.body).then(() => {
 
@@ -110,7 +116,7 @@ function createRoutes (singular, plural) {
 
     });
 
-    router.get('/' + plural + '/:id/ping', (req, res) => {
+    router.get(`/${plural}/:id/ping`, (req, res) => {
 
         DBModel.findOne({_id: req.params.id}).then(model => {
 
@@ -121,7 +127,7 @@ function createRoutes (singular, plural) {
 
     });
 
-    router.get('/' + plural + '/:id/refresh', (req, res) => {
+    router.get(`/${plural}/:id/refresh`, (req, res) => {
 
         DBModel.findOne({_id: req.params.id}).then(model => {
 

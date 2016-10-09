@@ -47,7 +47,10 @@ class PluginManager {
         this._plugins = [
             {
                 require: require('../../plugins/core'),
-                database: {name: 'core', version: '0.0.0'}
+                database: {
+                    name: 'core',
+                    version: '0.0.0'
+                }
             }
         ];
 
@@ -99,12 +102,14 @@ class PluginManager {
                 /**
                  * Get package.json and save in database
                  */
-                const modulePackage = require(nameToRequire + '/package.json');
+                const modulePackage = require(`${nameToRequire}/package.json`);
                 const dbPlugin = new Plugin({
                     name: plugin.name,
                     version: modulePackage.version
                 });
+
                 pluginInstance.database = dbPlugin;
+
                 return dbPlugin.save().then(() => {
 
                     debug('Saved %s', plugin.name);
@@ -113,9 +118,11 @@ class PluginManager {
 
             }
 
+            return Promise.resolve();
+
         }).catch(err => {
 
-            console.error('Failed installing plugin', err);
+            debug('Failed installing plugin', err);
 
         });
 
@@ -134,6 +141,7 @@ class PluginManager {
 
             // Delete from _plugins array
             const index = this._plugins.indexOf(PluginInstance);
+
             if (index > -1) {
 
                 this._plugins.splice(index, 1);
@@ -181,11 +189,11 @@ class PluginManager {
          */
         if (category) {
 
-            plugins = plugins.filter(plugin => {
+            plugins = plugins.filter(plugin =>
 
-                return typeof plugin.require[category] == 'object';
+                typeof plugin.require[category] == 'object'
 
-            });
+            );
 
         }
 
@@ -223,11 +231,11 @@ class PluginManager {
             /**
              * That have the specified function
              */
-            .filter(plugin => {
+            .filter(plugin =>
 
-                return typeof plugin.require[category][func] == 'function';
+                typeof plugin.require[category][func] == 'function'
 
-            })
+            )
             .forEach(plugin => {
 
 
@@ -249,7 +257,7 @@ class PluginManager {
          */
         return Promise
             .all(Object.keys(promises).map(key => promises[key]))
-            .catch(err => console.error(
+            .catch(err => debug(
                 'A plugin did\'n t catch all problems. Please report this to the plugin module author.', err
             ));
 

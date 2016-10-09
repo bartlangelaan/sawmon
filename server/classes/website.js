@@ -1,9 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const dns = Promise.promisifyAll(require('dns'));
 const PluginManager = require('../classes/plugin-manager');
-const getConnection = require('../functions/getConnection');
 const request = require('request-promise');
 const ActionStatus = require('./action-status');
 
@@ -30,6 +28,7 @@ const websiteSchema = mongoose.Schema(Object.assign({
 }, ...PluginManager.getPlugins('websites').map(plugin => {
 
     if (plugin.schema) return plugin.schema;
+
     return {};
 
 })));
@@ -50,6 +49,7 @@ websiteSchema.methods.refresh = function () {
 
             this.refreshStatus.finished = new Date();
             this.refreshStatus.running = false;
+
             return this.save();
 
         });
@@ -66,20 +66,24 @@ websiteSchema.methods.ping = function () {
     return this
         .save()
         .then(() => request({
-            uri: 'http://' + this.domain,
+            uri: `http://${this.domain}`,
             resolveWithFullResponse: true,
             time: true
         }))
-        .catch(err => {
+        .catch(err => (
 
-            return {statusCode: err.error.code == 'ETIMEDOUT' ? 408 : 520};
+            {statusCode: err.error.code == 'ETIMEDOUT' ? 408 : 520}
 
-        })
-        .then(res => PluginManager.getPromise('websites', 'refresh', {instance: this, response: res}))
+        ))
+        .then(res => PluginManager.getPromise('websites', 'refresh', {
+            instance: this,
+            response: res
+        }))
         .then(() => {
 
             this.pingStatus.finished = new Date();
             this.pingStatus.running = false;
+
             return this.save();
 
         });

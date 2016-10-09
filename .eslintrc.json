@@ -32,7 +32,7 @@
     "newline-per-chained-call": "off",
     "max-len": "off",
     "multiline-ternary": "off",
-    "func-style": ["error", "expression", {"allowArrowFunctions": true}],
+    "func-style": ["error", "declaration", {"allowArrowFunctions": true}],
     "eqeqeq": "off",
     "no-underscore-dangle": "off",
     "no-process-env": "off",
@@ -45,6 +45,7 @@
     "require-jsdoc": ["warn", {"require": {"MethodDefinition": true}}],
     "no-ternary": "off",
     "no-confusing-arrow": ["error", {"allowParens": true}],
-    "no-extra-parens": "off"
+    "no-extra-parens": "off",
+    "class-methods-use-this": "off"
   }
 }

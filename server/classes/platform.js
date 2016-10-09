@@ -2,8 +2,4 @@
 
 const Promise = require('bluebird');
 
-module.exports.test = () => {
-
-    return Promise.resolve(true);
-
-};
+module.exports.test = () => Promise.resolve(true);

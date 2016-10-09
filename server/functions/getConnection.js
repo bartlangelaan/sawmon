@@ -1,7 +1,8 @@
 'use strict';
 
-const node_ssh = require('node-ssh');
+const nodeSsh = require('node-ssh');
 const Queue = require('promise-queue');
+const debug = require('debug')('sawmon:get-connection');
 
 const connections = {};
 
@@ -9,18 +10,19 @@ function connect (queue, server, connection) {
 
     return queue.add(() => {
 
-        console.log('Connecting..');
+        debug('Connecting..');
+
         // Get the private key
-        return require('../classes/server').findOne({_id: server._id}).select('+privateKey').exec().then(server => {
+        return require('../classes/server').findOne({_id: server._id}).select('+privateKey').exec().then(serverWithPrivateKey =>
 
             // Connect
-            return connection.connect({
-                host: server.hostname,
-                username: server.username,
-                privateKey: server.privateKey
-            }).then(() => console.log('Connected!'));
+            connection.connect({
+                host: serverWithPrivateKey.hostname,
+                username: serverWithPrivateKey.username,
+                privateKey: serverWithPrivateKey.privateKey
+            }).then(() => debug('Connected!'))
 
-        });
+        );
 
     });
 
@@ -29,19 +31,21 @@ function connect (queue, server, connection) {
 module.exports = server => {
 
     const serverId = server._id ? server._id.toString() : server.toString();
+
     if (connections[serverId]) return connections[serverId];
 
-    console.log('Creating new server connection for server', server);
+    debug('Creating new server connection for server', server);
 
-    const connection = new node_ssh();
+    const connection = new nodeSsh();
     const queue = new Queue(1);
 
     connections[serverId] = {
-        execCommand: (...args) => {
+        execCommand: (...args) =>
 
-            return queue.add(() => {
+            queue.add(() => {
 
-                console.log('Executing', ...args);
+                debug('Executing', ...args);
+
                 return Promise.resolve(connection.execCommand(...args));
 
             }).catch(err => {
@@ -52,20 +56,14 @@ module.exports = server => {
                  */
                 if (err.message != 'Not connected' && err.message != 'Not connected to server') throw err;
 
-                console.log('Not connected anymore, trying to reconnect..');
+                debug('Not connected anymore, trying to reconnect..');
 
                 /**
                  * Connect, then try again
                  */
-                return connect(queue, server, connection).then(() => {
+                return connect(queue, server, connection).then(() => connection.execCommand(...args));
 
-                    return connection.execCommand(...args);
-
-                });
-
-            });
-
-        }
+            })
     };
 
     connect(queue, server, connection);

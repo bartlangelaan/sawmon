@@ -5,6 +5,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const PluginManager = require('./server/classes/plugin-manager');
+const debug = require('debug')('sawmon:init');
 
 mongoose.Promise = require('bluebird');
 
@@ -12,20 +13,35 @@ mongoose.Promise = require('bluebird');
  * Connect to database
  */
 const dbUrl = 'mongodb://localhost/sawmon';
-console.log(`Connecting to database ${dbUrl}..`);
+
+debug(`Connecting to database ${dbUrl}..`);
 
 mongoose.connect(dbUrl).then(() => {
 
-    console.log('Connected to database.');
-    console.log('Installing all plugins..');
+    debug('Connected to database.');
+    debug('Installing all plugins..');
+
     return PluginManager.initialize();
 
 }).then(() => {
 
-    console.log('All plugins installed.');
+    /* eslint max-statements: 0 */
 
-    require('./server/classes/server').update({}, {$set: {'refreshStatus.running': false, 'pingStatus.running': false}}, {multi: true}).exec();
-    require('./server/classes/website').update({}, {$set: {'refreshStatus.running': false, 'pingStatus.running': false}}, {multi: true}).exec();
+    debug('All plugins installed.');
+
+    require('./server/classes/server').update({}, {
+        $set: {
+            'refreshStatus.running': false,
+            'pingStatus.running': false
+        }
+    }, {multi: true}).exec();
+
+    require('./server/classes/website').update({}, {
+        $set: {
+            'refreshStatus.running': false,
+            'pingStatus.running': false
+        }
+    }, {multi: true}).exec();
 
 
     /**
@@ -33,7 +49,8 @@ mongoose.connect(dbUrl).then(() => {
      */
     const app = express();
     const port = process.env.PORT || 3000;
-    console.log('Starting application on port ' + port);
+
+    debug(`Starting application on port ${port}`);
     app.listen(port);
 
     app.use(express.static(path.join(__dirname, 'public')));
@@ -43,15 +60,14 @@ mongoose.connect(dbUrl).then(() => {
 
     require('./server')(app);
 
-    app.use(function (err, req, res) {
+    app.use((err, req, res) => {
 
         if (err.stack) {
 
-            console.error(err.stack);
+            debug(err.stack);
             res.sendStatus(500);
 
-        }
-        else {
+        } else {
 
             req.sendStatus(404);
 
@@ -59,8 +75,8 @@ mongoose.connect(dbUrl).then(() => {
 
     });
 
-}).catch(e => {
+}).catch(error => {
 
-    console.error(e);
+    debug(error);
 
 });

@@ -65,7 +65,7 @@ serverSchema.methods.refresh = function () {
 
 serverSchema.methods.ping = function () {
 
-    if (this.started == true) return Promise.reject('Ping is already running..');
+    if (this.pingStatus.started == true) return Promise.reject('Ping is already running..');
 
     this.pingStatus.running = true;
     this.pingStatus.started = new Date();
@@ -76,6 +76,8 @@ serverSchema.methods.ping = function () {
 
             if (typeof plugin.ping == 'function')
                 return plugin.ping(this, getConnection(this));
+
+            return Promise.resolve();
 
         }))
         .catch(err => debug('A plugin did\'n t catch all problems. Please report this to the plugin module author.', err))
