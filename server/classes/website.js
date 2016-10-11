@@ -2,7 +2,6 @@
 
 const Promise = require('bluebird');
 const PluginManager = require('../classes/plugin-manager');
-const request = require('request-promise');
 const ActionStatus = require('./action-status');
 
 const mongoose = require('mongoose');
@@ -65,17 +64,7 @@ websiteSchema.methods.ping = function () {
 
     return this
         .save()
-        .then(() => request({
-            uri: `http://${this.domain}`,
-            resolveWithFullResponse: true,
-            time: true
-        }))
-        .catch(err => (
-
-            {statusCode: err.error.code == 'ETIMEDOUT' ? 408 : 520}
-
-        ))
-        .then(res => PluginManager.getPromise('websites', 'refresh', {
+        .then(res => PluginManager.getPromise('websites', 'ping', {
             instance: this,
             response: res
         }))
