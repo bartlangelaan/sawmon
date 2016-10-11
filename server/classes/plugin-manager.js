@@ -84,6 +84,7 @@ class PluginManager {
             const nameToRequire = (plugin.localInstall ? '../../' : '') + plugin.name;
             const pluginInstance = {
                 require: require(nameToRequire),
+                package: require(`${nameToRequire}/package.json`),
                 database: plugin
             };
 
@@ -143,13 +144,15 @@ class PluginManager {
 
         this._plugins.forEach(plugin => {
 
-            pluginsByName[plugin.database.name] = plugin;
+            const name = plugin.package ? plugin.package.name : plugin.database.name;
+
+            pluginsByName[name] = plugin;
 
             if (!plugin.require.dependencies) return;
 
             plugin.require.dependencies.forEach(dependency => {
 
-                edges.push([dependency, plugin.database.name]);
+                edges.push([dependency, name]);
 
             });
 
@@ -158,7 +161,6 @@ class PluginManager {
         const sorted = toposort.array(Object.keys(pluginsByName), edges);
 
         this._plugins = sorted.map(key => pluginsByName[key]);
-
     }
 
     removePlugin (pluginId) {
