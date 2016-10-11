@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^6.4.1",
-    "concurrently": "^3.0.0",
+    "concurrently": "^3.1.0",
     "css-loader": "^0.25.0",
     "debug": "^2.2.0",
     "eslint": "^3.6.1",
