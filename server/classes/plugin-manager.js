@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Promise = require('bluebird');
 const debug = require('debug')('sawmon:plugin-manager');
 const npmi = Promise.promisify(require('npmi'));
+const toposort = require('toposort');
 
 const pluginSchema = mongoose.Schema({
     name: {
@@ -91,6 +92,8 @@ class PluginManager {
              */
             this._plugins.push(pluginInstance);
 
+            this.sortPlugins();
+
             debug('Installed %s', plugin.name);
 
             /**
@@ -125,6 +128,36 @@ class PluginManager {
             debug('Failed installing plugin', err);
 
         });
+
+    }
+
+    /**
+     * This function uses the toposort module to sort all plugins based on their dependencies.
+     * So first all the dependencies, then the dependents.
+     * @returns {undefined}
+     */
+    sortPlugins () {
+
+        const edges = [];
+        const pluginsByName = {};
+
+        this._plugins.forEach(plugin => {
+
+            pluginsByName[plugin.database.name] = plugin;
+
+            if (!plugin.require.dependencies) return;
+
+            plugin.require.dependencies.forEach(dependency => {
+
+                edges.push([dependency, plugin.database.name]);
+
+            });
+
+        });
+
+        const sorted = toposort.array(Object.keys(pluginsByName), edges);
+
+        this._plugins = sorted.map(key => pluginsByName[key]);
 
     }
 
@@ -163,26 +196,6 @@ class PluginManager {
         let plugins = this._plugins;
 
         if (!plugins) return [];
-
-        plugins = plugins.sort((plugin1, plugin2) => {
-
-            if (plugin1.require.dependencies && plugin1.require.dependencies.indexOf(plugin2.database.name) != -1) {
-
-                // plugin1 has a dependency on plugin2
-                return -1;
-
-            }
-            if (plugin2.require.dependencies && plugin2.require.dependencies.indexOf(plugin1.database.name) != -1) {
-
-                // plugin2 has a dependency on plugin1
-                return 1;
-
-            }
-
-            // no dependencies for each other defined
-            return 0;
-
-        });
 
         /**
          * Filter on category

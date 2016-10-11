@@ -28,7 +28,8 @@
     "node-ssh": "^3.0.1",
     "npmi": "^2.0.1",
     "promise-queue": "^2.2.3",
-    "request-promise": "^4.1.1"
+    "request-promise": "^4.1.1",
+    "toposort": "^1.0.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.4.1",
