@@ -5,7 +5,7 @@
     "start": "node node_modules/sawmon/index.js"
   },
   "dependencies": {
-    "bartlangelaan/sawmon": "*"
+    "sawmon": "bartlangelaan/sawmon"
   },
   "engines": {
     "node": "6.x"
