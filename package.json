@@ -2,6 +2,7 @@
   "name": "sawmon",
   "version": "0.0.0",
   "scripts": {
+    "postinstall": "cd node_modules/sawmon && npm run build",
     "start": "node node_modules/sawmon/index.js"
   },
   "dependencies": {
