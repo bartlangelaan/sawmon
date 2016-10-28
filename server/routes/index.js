@@ -185,8 +185,14 @@ router.get('/plugins/fields', (req, res) => {
 
     res.json([
         {
-            name: 'Package name',
+            name: 'npm install',
             key: 'name',
+            type: 'text',
+            placeholder: './plugins/sawmon-ip'
+        },
+        {
+            name: 'Package name',
+            key: 'pkgName',
             type: 'text',
             placeholder: 'sawmon-ip'
         }
