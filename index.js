@@ -12,7 +12,7 @@ mongoose.Promise = require('bluebird');
 /**
  * Connect to database
  */
-const dbUrl = 'mongodb://localhost/sawmon';
+const dbUrl = process.env.MONGODB_URI || 'mongodb://localhost/sawmon';
 
 debug(`Connecting to database ${dbUrl}..`);
 
