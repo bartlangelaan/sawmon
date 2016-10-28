@@ -1,0 +1,13 @@
+{
+  "name": "sawmon",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "node node_modules/sawmon/index.js"
+  },
+  "dependencies": {
+    "bartlangelaan/sawmon": "*"
+  },
+  "engines": {
+    "node": "6.x"
+  }
+}

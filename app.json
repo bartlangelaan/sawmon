@@ -1,0 +1,11 @@
+{
+  "name": "Sawmon",
+  "description": "Servers and Websites Monitoring, in Node.js.",
+  "repository": "https://github.com/bartlangelaan/sawmon/tree/heroku",
+  "scripts": {
+    "postdeploy": "cd node_modules/sawmon && npm run build"
+  },
+  "addons": [
+    "mongolab"
+  ]
+}
