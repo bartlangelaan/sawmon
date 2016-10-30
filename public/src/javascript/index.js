@@ -15,6 +15,10 @@ require('datatables.net-buttons/js/buttons.colVis.js');
 
 $.getJSON('api/websites').then(function (data) {
 
+    if(!data || !data.columns){
+        $('#websites').text('No websites added. Please add a website and refresh this page!');
+        return;
+    }
     $('#websites').DataTable(Object.assign(data, {
         ajax: {url: 'api/websites'},
         buttons: ['colvis'],
@@ -26,6 +30,11 @@ $.getJSON('api/websites').then(function (data) {
 
 });
 $.getJSON('api/servers').then(function (data) {
+
+    if(!data || !data.columns){
+        $('#websites').text('No servers added. Please add a server and refresh this page!');
+        return;
+    }
 
     $('#servers').DataTable(Object.assign(data, {
         ajax: {url: 'api/servers'},
