@@ -54,8 +54,19 @@ $.getJSON('api/servers').then(function (data) {
  */
 function refresh () {
 
-    $('#websites').DataTable().ajax.reload(null, false);
-    $('#servers').DataTable().ajax.reload(null, false);
+    try {
+        $('#websites').DataTable().ajax.reload(null, false);
+    } catch(e) {
+        console.error(e);
+    }
+
+    try {
+        $('#servers').DataTable().ajax.reload(null, false);
+    } catch(e) {
+        console.error(e);
+    }
+
+
     $.ajax('api/plugins').then(plugins => {
 
         $('#plugins-table').html(plugins.map(plugin =>
