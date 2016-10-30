@@ -167,6 +167,7 @@ class PluginManager {
         const sorted = toposort.array(Object.keys(pluginsByName), edges);
 
         this._plugins = sorted.map(key => pluginsByName[key]);
+
     }
 
     removePlugin (pluginId) {

@@ -10,6 +10,15 @@ const debug = require('debug')('sawmon:init');
 mongoose.Promise = require('bluebird');
 
 /**
+ * Create the server
+ */
+const app = express();
+const port = process.env.PORT || 3000;
+
+debug(`Starting application on port ${port}`);
+app.listen(port);
+
+/**
  * Connect to database
  */
 const dbUrl = process.env.MONGODB_URI || 'mongodb://localhost/sawmon';
@@ -43,15 +52,15 @@ mongoose.connect(dbUrl).then(() => {
         }
     }, {multi: true}).exec();
 
+    const middleware = PluginManager.getPlugins(null, false)
+        .filter(plugin => plugin.require.middleware)
+        .map(plugin => plugin.require.middleware);
 
-    /**
-     * Create the server
-     */
-    const app = express();
-    const port = process.env.PORT || 3000;
+    if (middleware.length) {
 
-    debug(`Starting application on port ${port}`);
-    app.listen(port);
+        app.use(middleware);
+
+    }
 
     app.use(express.static(path.join(__dirname, 'public')));
 
