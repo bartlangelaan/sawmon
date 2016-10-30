@@ -7,6 +7,8 @@
 
 Servers and websites monitoring, pluggable.
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/bartlangelaan/sawmon/tree/heroku)
+
 ## What is this?
 This is a work-in-progress tool that can monitor servers and websites. It's very pluggable, fast and useful.
 

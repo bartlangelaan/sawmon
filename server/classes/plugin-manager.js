@@ -7,10 +7,17 @@ const npmi = Promise.promisify(require('npmi'));
 const toposort = require('toposort');
 
 const pluginSchema = mongoose.Schema({
+    // The name passed to npm install
     name: {
         type: String,
         unique: true
     },
+    // The name passed to require()
+    pkgName: {
+        type: String,
+        unique: true
+    },
+    localInstall: Boolean,
     version: String
 });
 
@@ -50,7 +57,9 @@ class PluginManager {
                 require: require('../../plugins/core'),
                 database: {
                     name: 'core',
-                    version: '0.0.0'
+                    pkgName: '../../plugins/core',
+                    version: '0.0.0',
+                    localInstall: true
                 }
             }
         ];
@@ -72,19 +81,15 @@ class PluginManager {
      */
     addPlugin (plugin) {
 
-        if (plugin.name.charAt(0) == '.') {
-
-            plugin.localInstall = true;
-
-        }
-        debug('Installing plugin %s', plugin.name);
+        debug('Installing plugin %s from %s', plugin.pkgName, plugin.name);
 
         return npmi(plugin).then(() => {
 
-            const nameToRequire = (plugin.localInstall ? '../../' : '') + plugin.name;
+            if (!plugin.pkgName) plugin.pkgName = plugin.name;
+
             const pluginInstance = {
-                require: require(nameToRequire),
-                package: require(`${nameToRequire}/package.json`),
+                require: require(plugin.pkgName),
+                package: require(`${plugin.pkgName}/package.json`),
                 database: plugin
             };
 
@@ -104,13 +109,14 @@ class PluginManager {
 
 
                 /**
-                 * Get package.json and save in database
+                 * Set the plugin version from package.json
                  */
-                const modulePackage = require(`${nameToRequire}/package.json`);
-                const dbPlugin = new Plugin({
-                    name: plugin.name,
-                    version: modulePackage.version
-                });
+                plugin.version = require(`${plugin.pkgName}/package.json`).version;
+
+                /**
+                 * Create new DB instance
+                 */
+                const dbPlugin = new Plugin(plugin);
 
                 pluginInstance.database = dbPlugin;
 
@@ -144,7 +150,7 @@ class PluginManager {
 
         this._plugins.forEach(plugin => {
 
-            const name = plugin.package ? plugin.package.name : plugin.database.name;
+            const name = plugin.package ? plugin.package.name : plugin.database.pkgName;
 
             pluginsByName[name] = plugin;
 
@@ -171,8 +177,7 @@ class PluginManager {
             plugin.remove();
 
             // Require module
-            const nameToRequire = (plugin.localInstall ? '../../' : '') + plugin.name;
-            const PluginInstance = require(nameToRequire);
+            const PluginInstance = require(plugin.pkgName);
 
             // Delete from _plugins array
             const index = this._plugins.indexOf(PluginInstance);
