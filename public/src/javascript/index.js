@@ -13,9 +13,11 @@ require('datatables.net-buttons-bs');
 require('datatables.net-buttons/js/buttons.colVis.js');
 
 
+$.fn.dataTable.ext.errMode = 'none';
+
 $.getJSON('api/websites').then(function (data) {
 
-    if(!data || !data.columns){
+    if(!data || !data.columns || !data.columns.length){
         $('#websites').text('No websites added. Please add a website and refresh this page!');
         return;
     }
@@ -31,7 +33,7 @@ $.getJSON('api/websites').then(function (data) {
 });
 $.getJSON('api/servers').then(function (data) {
 
-    if(!data || !data.columns){
+    if(!data || !data.columns || !data.columns.length){
         $('#websites').text('No servers added. Please add a server and refresh this page!');
         return;
     }
