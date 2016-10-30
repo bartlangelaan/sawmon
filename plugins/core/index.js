@@ -62,6 +62,19 @@ module.exports.servers.display = [
 module.exports.websites = {};
 
 /**
+ * An array of objects, defining the fields that can be edited.
+ * Also shown when creating a new item
+ */
+module.exports.websites.fields = [
+    {
+        name: 'Domain',
+        key: 'domain',
+        type: 'text',
+        placeholder: 'www.example.com'
+    }
+];
+
+/**
  * An array of objects, defining the fields displayed in the table
  */
 module.exports.websites.display = [
