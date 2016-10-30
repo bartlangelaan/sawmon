@@ -2,7 +2,7 @@
   "name": "sawmon-installer",
   "version": "0.0.0",
   "scripts": {
-    "start": "npm install bartlangelaan/sawmon && cd node_modules/sawmon && npm install --only=dev && npm run build && npm start"
+    "postinstall": "npm install bartlangelaan/sawmon && cd node_modules/sawmon && npm install --only=dev && npm run build && npm start"
   },
   "engines": {
     "node": "6.x"
