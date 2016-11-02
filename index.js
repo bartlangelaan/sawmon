@@ -52,6 +52,12 @@ mongoose.connect(dbUrl).then(() => {
         }
     }, {multi: true}).exec();
 
+    app.use(require('cookie-parser')());
+    app.use(require('express-session')({secret: 'keyboard cat', resave: true, saveUninitialized: true}));
+
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({extended: true}));
+
     const middleware = PluginManager.getPlugins(null, false)
         .filter(plugin => plugin.require.middleware)
         .map(plugin => plugin.require.middleware);
@@ -63,9 +69,6 @@ mongoose.connect(dbUrl).then(() => {
     }
 
     app.use(express.static(path.join(__dirname, 'public')));
-
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({extended: true}));
 
     require('./server')(app);
 
