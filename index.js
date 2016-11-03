@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const PluginManager = require('./server/classes/plugin-manager');
 const debug = require('debug')('sawmon:init');
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 
 mongoose.Promise = require('bluebird');
 
@@ -53,7 +55,12 @@ mongoose.connect(dbUrl).then(() => {
     }, {multi: true}).exec();
 
     app.use(require('cookie-parser')());
-    app.use(require('express-session')({secret: 'keyboard cat', resave: true, saveUninitialized: true}));
+    app.use(session({
+        resave: true,
+        saveUninitialized: true,
+        store: new MongoStore({mongooseConnection: mongoose.connection}),
+        secret: 'very secret'
+    }));
 
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({extended: true}));
