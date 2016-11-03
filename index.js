@@ -9,6 +9,13 @@ const debug = require('debug')('sawmon:init');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 
+const status = {
+    error: false,
+    db: false,
+    plugins: false,
+    express: false
+};
+
 mongoose.Promise = require('bluebird');
 
 /**
@@ -20,6 +27,30 @@ const port = process.env.PORT || 3000;
 debug(`Starting application on port ${port}`);
 app.listen(port);
 
+app.use((req, res, next) => {
+
+    if (status.express) return next();
+
+    return res.send(`
+<pre>
+SAWMON LOADER
+
+[X] Binding to port ${port}
+[${status.db ? 'X' : ' '}] Connecting to MongoDB
+[${status.plugins ? 'X' : ' '}] Installing plugins
+[${status.express ? 'X' : ' '}] Load all Express middleware
+
+${status.error ? status.error : ''}
+</pre>
+<script>
+setTimeout(function(){
+   window.location.reload(1);
+}, 200);
+</script>
+`);
+
+});
+
 /**
  * Connect to database
  */
@@ -29,6 +60,8 @@ debug(`Connecting to database ${dbUrl}..`);
 
 mongoose.connect(dbUrl).then(() => {
 
+    status.db = true;
+
     debug('Connected to database.');
     debug('Installing all plugins..');
 
@@ -37,6 +70,8 @@ mongoose.connect(dbUrl).then(() => {
 }).then(() => {
 
     /* eslint max-statements: 0 */
+
+    status.plugins = true;
 
     debug('All plugins installed.');
 
@@ -94,7 +129,11 @@ mongoose.connect(dbUrl).then(() => {
 
     });
 
+    status.express = true;
+
 }).catch(error => {
+
+    status.error = error.message;
 
     debug(error);
 
