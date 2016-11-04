@@ -35,27 +35,18 @@ const serverSchema = mongoose.Schema(Object.assign({
 
 serverSchema.methods.refresh = function () {
 
-    if (this.refreshStatus.started == true) {
-
-        debug('Tried to start refresh but already running..');
-
-        return Promise.reject('Refresh is already running..');
-
-    }
-
-    debug('Starting refresh');
+    if (this.refreshStatus.running == true) return Promise.reject('Refresh is already running..');
 
     this.refreshStatus.running = true;
     this.refreshStatus.started = new Date();
 
     return this
         .save()
-        .then(() => PluginManager.getPromise('servers', 'refresh'))
+        .then(() => PluginManager.getPromise('servers', 'refresh', {instance: this}))
         .then(() => {
 
             this.refreshStatus.finished = new Date();
             this.refreshStatus.running = false;
-            debug('Refresh done!');
 
             return this.save();
 
@@ -65,22 +56,14 @@ serverSchema.methods.refresh = function () {
 
 serverSchema.methods.ping = function () {
 
-    if (this.pingStatus.started == true) return Promise.reject('Ping is already running..');
+    if (this.pingStatus.running == true) return Promise.reject('Ping is already running..');
 
     this.pingStatus.running = true;
     this.pingStatus.started = new Date();
 
     return this
         .save()
-        .then(() => Promise.map(PluginManager.getPlugins('servers'), plugin => {
-
-            if (typeof plugin.ping == 'function')
-                return plugin.ping(this, getConnection(this));
-
-            return Promise.resolve();
-
-        }))
-        .catch(err => debug('A plugin did\'n t catch all problems. Please report this to the plugin module author.', err))
+        .then(() => PluginManager.getPromise('servers', 'ping', {instance: this}))
         .then(() => {
 
             this.pingStatus.finished = new Date();

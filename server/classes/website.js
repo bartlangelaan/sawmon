@@ -36,14 +36,14 @@ websiteSchema.plugin(require('mongoose-autopopulate'));
 
 websiteSchema.methods.refresh = function () {
 
-    if (this.refreshStatus.started == true) return Promise.reject('Refresh is already running..');
+    if (this.refreshStatus.running == true) return Promise.reject('Refresh is already running..');
 
     this.refreshStatus.running = true;
     this.refreshStatus.started = new Date();
 
     return this
         .save()
-        .then(() => PluginManager.getPromise('websites', 'refresh'))
+        .then(() => PluginManager.getPromise('websites', 'refresh', {instance: this}))
         .then(() => {
 
             this.refreshStatus.finished = new Date();
@@ -57,17 +57,14 @@ websiteSchema.methods.refresh = function () {
 
 websiteSchema.methods.ping = function () {
 
-    if (this.pingStatus.started == true) return Promise.reject('Refresh is already running..');
+    if (this.pingStatus.running == true) return Promise.reject('Ping is already running..');
 
     this.pingStatus.running = true;
     this.pingStatus.started = new Date();
 
     return this
         .save()
-        .then(res => PluginManager.getPromise('websites', 'ping', {
-            instance: this,
-            response: res
-        }))
+        .then(() => PluginManager.getPromise('websites', 'ping', {instance: this}))
         .then(() => {
 
             this.pingStatus.finished = new Date();
