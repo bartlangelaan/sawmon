@@ -4,31 +4,10 @@ const Promise = require('bluebird');
 
 const mongoose = require('mongoose');
 const PluginManager = require('../classes/plugin-manager');
-const ActionStatus = require('./action-status');
 
-const serverSchema = mongoose.Schema(Object.assign({
-    name: String,
-    hostname: String,
-    username: String,
-    privateKey: {
-        type: String,
-        select: false
-    },
-    pingStatus: {
-        type: ActionStatus,
-        default: {}
-    },
-    refreshStatus: {
-        type: ActionStatus,
-        default: {}
-    }
-}, ...PluginManager.getPlugins('servers').map(plugin => {
-
-    if (plugin.schema) return plugin.schema;
-
-    return {};
-
-})));
+const serverSchema = mongoose.Schema(Object.assign(
+    ...PluginManager.getPlugins('servers').map(plugin => plugin.schema || {})
+));
 
 serverSchema.methods.refresh = function () {
 

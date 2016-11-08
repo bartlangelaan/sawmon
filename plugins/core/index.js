@@ -1,6 +1,27 @@
 'use strict';
 
+const ActionStatus = require('../../server/classes/action-status');
+const mongoose = require('mongoose');
+
 module.exports.servers = {};
+
+module.exports.servers.schema = {
+    name: String,
+    hostname: String,
+    username: String,
+    privateKey: {
+        type: String,
+        select: false
+    },
+    pingStatus: {
+        type: ActionStatus,
+        default: {}
+    },
+    refreshStatus: {
+        type: ActionStatus,
+        default: {}
+    }
+};
 
 /**
  * An array of objects, defining the fields that can be edited.
@@ -60,6 +81,26 @@ module.exports.servers.display = [
 ];
 
 module.exports.websites = {};
+
+module.exports.websites.schema = {
+    domain: String,
+    root: String,
+    server: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Server',
+        autopopulate: true
+    },
+    platform: String,
+    active: Boolean,
+    pingStatus: {
+        type: ActionStatus,
+        default: {}
+    },
+    refreshStatus: {
+        type: ActionStatus,
+        default: {}
+    }
+};
 
 /**
  * An array of objects, defining the fields that can be edited.

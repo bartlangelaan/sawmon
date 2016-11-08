@@ -2,35 +2,12 @@
 
 const Promise = require('bluebird');
 const PluginManager = require('../classes/plugin-manager');
-const ActionStatus = require('./action-status');
 
 const mongoose = require('mongoose');
 
-const websiteSchema = mongoose.Schema(Object.assign({
-    domain: String,
-    root: String,
-    server: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Server',
-        autopopulate: true
-    },
-    platform: String,
-    active: Boolean,
-    pingStatus: {
-        type: ActionStatus,
-        default: {}
-    },
-    refreshStatus: {
-        type: ActionStatus,
-        default: {}
-    }
-}, ...PluginManager.getPlugins('websites').map(plugin => {
-
-    if (plugin.schema) return plugin.schema;
-
-    return {};
-
-})));
+const websiteSchema = mongoose.Schema(Object.assign(
+    ...PluginManager.getPlugins('websites').map(plugin => plugin.schema || {})
+));
 
 websiteSchema.plugin(require('mongoose-autopopulate'));
 
