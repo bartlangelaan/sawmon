@@ -90,8 +90,6 @@ module.exports.websites.schema = {
         ref: 'Server',
         autopopulate: true
     },
-    platform: String,
-    active: Boolean,
     pingStatus: {
         type: ActionStatus,
         default: {}
@@ -130,14 +128,6 @@ module.exports.websites.display = [
     {
         name: 'Server',
         value: website => (website.server.name ? `${website.server.name}` : null)
-    },
-    {
-        name: 'Platform',
-        value: website => (website.platform ? `${website.platform}` : null)
-    },
-    {
-        name: 'Active',
-        value: website => (website.active ? 'yes' : 'no')
     },
     {
         name: 'Actions',
