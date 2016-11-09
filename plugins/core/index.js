@@ -6,16 +6,28 @@ const mongoose = require('mongoose');
 
 module.exports.settings = [
     {
-        label: 'Ping interval (seconds)',
-        key: 'core_ping_interval',
+        label: 'Server ping interval (seconds)',
+        key: 'core_server_ping_interval',
         type: Number,
-        default: '60'
+        default: 60
     },
     {
-        label: 'Refresh interval (seconds)',
-        key: 'core_refresh_interval',
+        label: 'Server refresh interval (seconds)',
+        key: 'core_server_refresh_interval',
         type: Number,
-        default: '3600'
+        default: 3600
+    },
+    {
+        label: 'Website ping interval (seconds)',
+        key: 'core_website_ping_interval',
+        type: Number,
+        default: 60
+    },
+    {
+        label: 'Website refresh interval (seconds)',
+        key: 'core_website_refresh_interval',
+        type: Number,
+        default: 3600
     }
 ];
 
