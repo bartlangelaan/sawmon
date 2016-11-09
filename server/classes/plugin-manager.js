@@ -284,7 +284,7 @@ class PluginManager {
 
     }
 
-    getArray (...path) {
+    getAll (...path) {
 
         return this.getPlugins(null, false).map(plugin =>
             path.reduce(
@@ -301,11 +301,15 @@ class PluginManager {
 
     }
 
+    getArray (...path) {
+
+        return this.getAll(...path).reduce((a, b) => a.concat(b), []);
+
+    }
+
     getObject (...path) {
 
-        const array = this.getArray(...path);
-
-        return Object.assign(...array);
+        return Object.assign(...this.getAll(...path));
 
     }
 

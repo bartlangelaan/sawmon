@@ -3,6 +3,22 @@
 const ActionStatus = require('../../server/classes/action-status');
 const mongoose = require('mongoose');
 
+
+module.exports.settings = [
+    {
+        label: 'Ping interval (seconds)',
+        key: 'core_ping_interval',
+        type: Number,
+        default: '60'
+    },
+    {
+        label: 'Refresh interval (seconds)',
+        key: 'core_refresh_interval',
+        type: Number,
+        default: '3600'
+    }
+];
+
 module.exports.servers = {};
 
 module.exports.servers.schema = {
