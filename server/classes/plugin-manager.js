@@ -284,6 +284,31 @@ class PluginManager {
 
     }
 
+    getArray (...path) {
+
+        return this.getPlugins(null, false).map(plugin =>
+            path.reduce(
+                (plug, property) => {
+
+                    if (!plug) return null;
+
+                    return plug[property];
+
+                },
+                plugin.require
+            )
+        ).filter(pluginProperty => pluginProperty);
+
+    }
+
+    getObject (...path) {
+
+        const array = this.getArray(...path);
+
+        return Object.assign(...array);
+
+    }
+
     /**
      * Get all installed plugins, as defined in the database
      * @returns {Promise.<Array.<Object>>}

@@ -5,9 +5,7 @@ const PluginManager = require('../classes/plugin-manager');
 
 const mongoose = require('mongoose');
 
-const websiteSchema = mongoose.Schema(Object.assign(
-    ...PluginManager.getPlugins('websites').map(plugin => plugin.schema || {})
-));
+const websiteSchema = mongoose.Schema(PluginManager.getObject('websites', 'schema'));
 
 websiteSchema.plugin(require('mongoose-autopopulate'));
 

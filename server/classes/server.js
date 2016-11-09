@@ -5,9 +5,7 @@ const Promise = require('bluebird');
 const mongoose = require('mongoose');
 const PluginManager = require('../classes/plugin-manager');
 
-const serverSchema = mongoose.Schema(Object.assign(
-    ...PluginManager.getPlugins('servers').map(plugin => plugin.schema || {})
-));
+const serverSchema = mongoose.Schema(PluginManager.getObject('servers', 'schema'));
 
 serverSchema.methods.refresh = function () {
 
