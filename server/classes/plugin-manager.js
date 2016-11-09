@@ -268,7 +268,12 @@ class PluginManager {
                 /**
                  * Execute this after all dependencies
                  */
-                promises[plugin.database.name] = Promise.all(dependencies).then(() => plugin.require[category][func](passTrough));
+                promises[plugin.database.name] = Promise.all(dependencies).then(() => plugin.require[category][func](passTrough)).catch(err => {
+
+                    debug('The plugin %s didn\'t catch all problems. Please report this to the plugin module author.', plugin.database.name);
+                    debug('The error the plugin generated: ', err);
+
+                });
 
             });
 
@@ -278,9 +283,7 @@ class PluginManager {
          */
         return Promise
             .all(Object.keys(promises).map(key => promises[key]))
-            .catch(err => debug(
-                'A plugin did\'n t catch all problems. Please report this to the plugin module author.', err
-            ));
+            .catch();
 
     }
 
