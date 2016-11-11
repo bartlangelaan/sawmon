@@ -70,7 +70,22 @@ class PluginManager {
 
             debug('Installing all saved plugins');
 
-            return Promise.map(plugins, plugin => this.addPlugin(plugin));
+            this._installStatus = [];
+
+            return Promise.map(plugins, plugin => {
+                const status = {
+                    name: plugin.name,
+                    installed: false
+                };
+
+                this._installStatus.push(status);
+
+                return this.addPlugin(plugin).then(() => {
+
+                    status.installed = true;
+
+                });
+            });
 
         });
 
@@ -323,6 +338,16 @@ class PluginManager {
     getInstalledPlugins () {
 
         return Plugin.find();
+
+    }
+
+    getInstallStatus () {
+
+        if (!this._installStatus) return '';
+
+        return this._installStatus.map(plugin =>
+            `    [${plugin.installed ? 'X' : ' '}] ${plugin.name}`
+        ).join('\n');
 
     }
 }

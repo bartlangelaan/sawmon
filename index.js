@@ -38,6 +38,7 @@ SAWMON LOADER
 [X] Binding to port ${port}
 [${status.db ? 'X' : ' '}] Connecting to MongoDB
 [${status.plugins ? 'X' : ' '}] Installing plugins
+${PluginManager.getInstallStatus()}
 [${status.express ? 'X' : ' '}] Load all Express middleware
 
 ${status.error ? status.error : ''}
