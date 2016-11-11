@@ -153,6 +153,12 @@ class PluginManager {
 
     }
 
+    getName (plugin) {
+
+        return (plugin.package ? plugin.package.name : plugin.database.pkgName) || plugin.database.name;
+
+    }
+
     /**
      * This function uses the toposort module to sort all plugins based on their dependencies.
      * So first all the dependencies, then the dependents.
@@ -165,7 +171,7 @@ class PluginManager {
 
         this._plugins.forEach(plugin => {
 
-            const name = plugin.package ? plugin.package.name : plugin.database.pkgName;
+            const name = this.getName(plugin);
 
             pluginsByName[name] = plugin;
 
@@ -283,7 +289,7 @@ class PluginManager {
                 /**
                  * Execute this after all dependencies
                  */
-                promises[plugin.database.name] = Promise.all(dependencies).then(() => plugin.require[category][func](passTrough)).catch(err => {
+                promises[this.getName(plugin)] = Promise.all(dependencies).then(() => plugin.require[category][func](passTrough)).catch(err => {
 
                     debug('The plugin %s didn\'t catch all problems. Please report this to the plugin module author.', plugin.database.name);
                     debug('The error the plugin generated: ', err);
