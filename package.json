@@ -24,7 +24,7 @@
     "mongoose": "^4.6.6",
     "mongoose-autopopulate": "^0.4.0",
     "npmi": "^2.0.1",
-    "toposort": "^1.0.0"
+    "toposort": "^1.0.3"
   },
   "devDependencies": {
     "autoprefixer": "^6.5.2",
