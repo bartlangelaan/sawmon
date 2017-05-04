@@ -155,7 +155,7 @@ module.exports.websites.display = [
     },
     {
         name: 'Server',
-        value: website => (website.server.name ? `${website.server.name}` : null)
+        value: website => ((website.server && website.server.name) ? `${website.server.name}` : null)
     },
     {
         name: 'Actions',
