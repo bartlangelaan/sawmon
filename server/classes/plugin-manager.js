@@ -6,23 +6,6 @@ const debug = require('debug')('sawmon:plugin-manager');
 const npmi = Promise.promisify(require('npmi'));
 const toposort = require('toposort');
 
-const pluginSchema = mongoose.Schema({
-    // The name passed to npm install
-    name: {
-        type: String,
-        unique: true
-    },
-    // The name passed to require()
-    pkgName: {
-        type: String,
-        unique: true
-    },
-    localInstall: Boolean,
-    version: String
-});
-
-const Plugin = mongoose.model('Plugin', pluginSchema);
-
 
 /**
  * @name PluginCategory
@@ -43,7 +26,7 @@ class PluginManager {
      * This should only be called once.
      * @returns {Promise}
      */
-    initialize () {
+    initialize (plugins) {
 
         debug('Initializing PluginManager');
 
@@ -52,165 +35,8 @@ class PluginManager {
          * @type {Array.<Plugin>}
          * @private
          */
-        this._plugins = [
-            {
-                require: require('../../plugins/core'),
-                database: {
-                    name: 'core',
-                    pkgName: '../../plugins/core',
-                    version: '0.0.0',
-                    localInstall: true
-                }
-            }
-        ];
-
-        debug('Finding plugins saved in database');
-
-        return Plugin.find().then(plugins => {
-
-            debug('Installing all saved plugins');
-
-            this._installStatus = [];
-
-            return Promise.map(plugins, plugin => {
-                const status = {
-                    name: plugin.name,
-                    installed: false
-                };
-
-                this._installStatus.push(status);
-
-                return this.addPlugin(plugin).then(() => {
-
-                    status.installed = true;
-
-                });
-            });
-
-        });
-
-    }
-
-    /**
-     * Installs a plugin, and adds it to the database on success
-     */
-    addPlugin (plugin) {
-
-        debug('Installing plugin %s from %s', plugin.pkgName, plugin.name);
-
-        return npmi(plugin).then(() => {
-
-            if (!plugin.pkgName) plugin.pkgName = plugin.name;
-
-            const pluginInstance = {
-                require: require(plugin.pkgName),
-                package: require(`${plugin.pkgName}/package.json`),
-                database: plugin
-            };
-
-            /**
-             * Add plugin to internal array
-             */
-            this._plugins.push(pluginInstance);
-
-            this.sortPlugins();
-
-            debug('Installed %s', plugin.name);
-
-            /**
-             * Check if already in database
-             */
-            if (!plugin._id) {
-
-
-                /**
-                 * Set the plugin version from package.json
-                 */
-                plugin.version = require(`${plugin.pkgName}/package.json`).version;
-
-                /**
-                 * Create new DB instance
-                 */
-                const dbPlugin = new Plugin(plugin);
-
-                pluginInstance.database = dbPlugin;
-
-                return dbPlugin.save().then(() => {
-
-                    debug('Saved %s', plugin.name);
-
-                });
-
-            }
-
-            return Promise.resolve();
-
-        }).catch(err => {
-
-            debug('Failed installing plugin', err);
-
-        });
-
-    }
-
-    getName (plugin) {
-
-        return (plugin.package ? plugin.package.name : plugin.database.pkgName) || plugin.database.name;
-
-    }
-
-    /**
-     * This function uses the toposort module to sort all plugins based on their dependencies.
-     * So first all the dependencies, then the dependents.
-     * @returns {undefined}
-     */
-    sortPlugins () {
-
-        const edges = [];
-        const pluginsByName = {};
-
-        this._plugins.forEach(plugin => {
-
-            const name = this.getName(plugin);
-
-            pluginsByName[name] = plugin;
-
-            if (!plugin.require.dependencies) return;
-
-            plugin.require.dependencies.forEach(dependency => {
-
-                edges.push([dependency, name]);
-
-            });
-
-        });
-
-        const sorted = toposort.array(Object.keys(pluginsByName), edges);
-
-        this._plugins = sorted.map(key => pluginsByName[key]);
-
-    }
-
-    removePlugin (pluginId) {
-
-        return Plugin.findOne({_id: pluginId}).exec().then(plugin => {
-
-            // Remove from database
-            plugin.remove();
-
-            // Require module
-            const PluginInstance = require(plugin.pkgName);
-
-            // Delete from _plugins array
-            const index = this._plugins.indexOf(PluginInstance);
-
-            if (index > -1) {
-
-                this._plugins.splice(index, 1);
-
-            }
-
-        });
+        this._plugins = plugins;
+        this._plugins.unshift(require('../../plugins/core'));
 
     }
 
@@ -233,7 +59,7 @@ class PluginManager {
 
             plugins = plugins.filter(plugin =>
 
-                typeof plugin.require[category] == 'object'
+                typeof plugin[category] === 'object'
 
             );
 
@@ -244,7 +70,7 @@ class PluginManager {
          */
         if (onlyReturnCategory) {
 
-            plugins = plugins.map(plugin => plugin.require[category]);
+            plugins = plugins.map(plugin => plugin[category]);
 
         }
 
@@ -275,7 +101,7 @@ class PluginManager {
              */
             .filter(plugin =>
 
-                typeof plugin.require[category][func] == 'function'
+                typeof plugin[category][func] == 'function'
 
             )
             .forEach(plugin => {
@@ -284,12 +110,12 @@ class PluginManager {
                 /**
                  * Get all the dependencies as promises
                  */
-                const dependencies = plugin.require.dependencies ? plugin.require.dependencies.map(dependency => promises[dependency]) : [];
+                const dependencies = plugin.dependencies ? plugin.dependencies.map(dependency => promises[dependency]) : [];
 
                 /**
                  * Execute this after all dependencies
                  */
-                promises[this.getName(plugin)] = Promise.all(dependencies).then(() => plugin.require[category][func](passTrough)).catch(err => {
+                promises[this.getName(plugin)] = Promise.all(dependencies).then(() => plugin[category][func](passTrough)).catch(err => {
 
                     debug('The plugin %s didn\'t catch all problems. Please report this to the plugin module author.', plugin.database.name);
                     debug('The error the plugin generated: ', err);
@@ -319,7 +145,7 @@ class PluginManager {
                     return plug[property];
 
                 },
-                plugin.require
+                plugin
             )
         ).filter(pluginProperty => pluginProperty);
 
@@ -333,27 +159,7 @@ class PluginManager {
 
     getObject (...path) {
 
-        return Object.assign(...this.getAll(...path));
-
-    }
-
-    /**
-     * Get all installed plugins, as defined in the database
-     * @returns {Promise.<Array.<Object>>}
-     */
-    getInstalledPlugins () {
-
-        return Plugin.find();
-
-    }
-
-    getInstallStatus () {
-
-        if (!this._installStatus) return '';
-
-        return this._installStatus.map(plugin =>
-            `    [${plugin.installed ? 'X' : ' '}] ${plugin.name}`
-        ).join('\n');
+        return Object.assign({}, ...this.getAll(...path));
 
     }
 }

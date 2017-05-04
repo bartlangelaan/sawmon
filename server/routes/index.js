@@ -145,11 +145,7 @@ createRoutes('website', 'websites');
 
 router.get('/plugins', (req, res) => {
 
-    PluginManager.getInstalledPlugins().then(plugins => {
-
-        res.json(plugins);
-
-    });
+    res.json([]);
 
 });
 
