@@ -1,5 +1,7 @@
 # SAWMON 
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/bartlangelaan/sawmon.svg)](https://greenkeeper.io/)
+
 [![Code Climate](https://codeclimate.com/github/bartlangelaan/sawmon/badges/gpa.svg)](https://codeclimate.com/github/bartlangelaan/sawmon)
 [![GitHub issues](https://img.shields.io/github/issues/bartlangelaan/sawmon.svg)](https://waffle.io/bartlangelaan/sawmon)
 [![dependencies Status](https://david-dm.org/bartlangelaan/sawmon/status.svg)](https://david-dm.org/bartlangelaan/sawmon)
